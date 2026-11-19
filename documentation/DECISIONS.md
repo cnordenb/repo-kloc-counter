@@ -22,6 +22,8 @@ an earlier one, the earlier one is named after it, with its own link.
 
 ## Requirements, and how they are read
 
+- **A progress line for ls.** `/ counting repositories...`, turning as during a count.
+  [2026-11-19 13:24:29](DEVLOG/DEVLOG1.md#132429-a-progress-line-while-ls-waits)
 - **The ls command.** `ls {user}` lists a user's or organisation's public repositories, forks left out, one
   `owner/name` a line in the order of their names; every page of 100 is read.
   [2026-11-19 13:13:59](DEVLOG/DEVLOG1.md#131359-the-ls-command-lists-a-users-repositories)
@@ -41,8 +43,9 @@ an earlier one, the earlier one is named after it, with its own link.
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
 - **Other input.** Input that is neither a link nor a command gives `error: not a valid link`.
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
-- **300 ms.** Requirement 28 is met by a 300 ms interval, tested with mocked timers.
-  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **150 ms.** The turning character changes on a 150 ms interval, `FRAME_MS`, tested with mocked timers. Replaced:
+  300 ms. [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+  [2026-11-19 13:28:43](DEVLOG/DEVLOG1.md#132843-the-progress-line-turns-twice-as-fast-with-a-longer-dash)
 - **Accessibility later.** Accessibility is left for later; `.github/ACCESSIBILITY.md` stays as the template left it.
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
 - **`{owner}/{repo}` alone.** Without a scheme, a first part with no dot is an owner and `github.com/` goes before it;
@@ -52,9 +55,11 @@ an earlier one, the earlier one is named after it, with its own link.
   [2026-11-19 11:50:52](DEVLOG/DEVLOG1.md#115052-packagejson-added-and-the-progress-line-decided)
 - **A file that fails to fetch.** Retried once, then left out, with the warning of a partial count.
   [2026-11-19 11:50:52](DEVLOG/DEVLOG1.md#115052-packagejson-added-and-the-progress-line-decided)
-- **The progress line.** `/ counting lines... (done/total files)`, its first character turning through `/`, `-`, `\`,
-  `|` every 300 ms; done is the files read, total the files to read.
+- **The progress line.** `/ counting lines... (done/total files)`, its first character turning through `/`, `─`, `\`,
+  `|` every 150 ms; done is the files read, total the files to read. `─` is U+2500, a line for terminals, which fills
+  its cell in a monospace font. Replaced: `-`, every 300 ms.
   [2026-11-19 11:50:52](DEVLOG/DEVLOG1.md#115052-packagejson-added-and-the-progress-line-decided)
+  [2026-11-19 13:28:43](DEVLOG/DEVLOG1.md#132843-the-progress-line-turns-twice-as-fast-with-a-longer-dash)
 - **No code files is no error.** Such a repository gives `0.0 KLOC · 0 files · 0 lines`.
   [2026-11-19 11:50:52](DEVLOG/DEVLOG1.md#115052-packagejson-added-and-the-progress-line-decided)
 - **No token.** GitHub's API is called without a token, within its 60 calls an hour.
@@ -90,9 +95,10 @@ an earlier one, the earlier one is named after it, with its own link.
 
 - **One place for GitHub's errors.** `parsed` in `github.js` turns every answer that is not ok into a `GitHubError`.
   [2026-11-19 13:13:59](DEVLOG/DEVLOG1.md#131359-the-ls-command-lists-a-users-repositories)
-- **One place for being busy.** `whileBusy` in `session.js` marks the terminal busy, tells the page, and shows the
-  lines after.
+- **One place for being busy.** `whileBusy` in `session.js` marks the terminal busy, shows a progress line until
+  the work is done, and shows the lines after; a count and `ls` pass only how their line reads.
   [2026-11-19 13:13:59](DEVLOG/DEVLOG1.md#131359-the-ls-command-lists-a-users-repositories)
+  [2026-11-19 13:24:29](DEVLOG/DEVLOG1.md#132429-a-progress-line-while-ls-waits)
 - **A snapshot of the code extensions.** `src/data/extensions.json`, remade by `npm run update-extensions` from
   Linguist, plus `included-extensions.json` and less `excluded-extensions.json`, both in `.github/scripts/`; not read
   from Linguist at each count.

@@ -37,8 +37,8 @@
 
 ## Progress line
 26. While files are read, Repo KLOC Counter will show one line `X counting lines... (done/total files)`.
-27. The character `X` will turn through `/`, `-`, `\` and `|`, in that order, and round again.
-28. The character `X` will change every 300 ms.
+27. The character X will turn through /, ─, \ and |, in that order, and round again.
+28. The character X will change every 150 ms.
 29. The number `done` will be the number of files read.
 30. The number `total` will be the number of files to read.
 
@@ -54,3 +54,17 @@
 37. Input that is not a valid link will give the error "not a valid link".
 38. GitHub's hourly rate limit exceeded will give the error "GitHub's hourly rate limit exceeded".
 39. A repository GitHub does not show will give the error "not a public repository, or no such repository".
+
+## Short links
+40. Repo KLOC Counter will accept `{owner}/{repo}` alone, as if `https://github.com/` came before it.
+
+## The ls command
+41. The command `ls {user}` will list the public repositories of that GitHub user, one `{owner}/{repo}` a line.
+42. The command `ls` will leave forks out.
+43. The command `ls` will list the repositories in the order of their names.
+44. The command `ls` will list every public repository of the user, however many there are.
+45. While `ls` waits, Repo KLOC Counter will show one line `X counting repositories...`.
+46. The character `X` of that line will turn and change as Requirements 27 and 28 say.
+47. A user with no public repositories will give the result "no public repositories".
+48. A user GitHub does not show will give the error "no such GitHub user".
+49. `ls` without exactly one user will give the error "ls takes one GitHub user, such as: ls cnordenb".

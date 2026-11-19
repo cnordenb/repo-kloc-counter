@@ -104,7 +104,7 @@ flowchart LR
 5. `countLines` blanks out the comments of the file's comment style, then counts the lines with at least one
    character that is not whitespace. `resultLines` in `output.js` shows them as `15.5 KLOC · 171 files · 15506 lines`.
 
-While this runs, `session.js` shows the progress line and turns its first character every 300 ms (`FRAME_MS`).
+While this runs, `session.js` shows the progress line and turns its first character every 150 ms (`FRAME_MS`).
 
 ### Comment styles
 
@@ -127,7 +127,7 @@ any line can be typed back to count it. `listRepos` in `github.js` asks
 `https://api.github.com/users/cnordenb/repos?type=owner&sort=full_name&per_page=100&page=1`, then page 2 and on while
 a page holds 100, and leaves out every repository whose `fork` is true. Each page is one call against the limit of 60
 an hour. A 404 gives `error: no such GitHub user`. While it waits, `whileBusy` in `session.js` marks the terminal
-busy, as during a count, so that the prompt waits too.
+busy and shows the progress line `/ counting repositories...`, as during a count, so that the prompt waits too.
 
 ### Trying the page on your computer
 

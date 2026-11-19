@@ -1,7 +1,7 @@
 import { parseLink, parseUser } from './link.js';
 import { countRepository } from './count.js';
 import { listRepos } from './github.js';
-import { FRAME_MS, HELP, errorLine, progressLine, repoLines, resultLines } from './output.js';
+import { FRAME_MS, HELP, errorLine, listingLine, progressLine, repoLines, resultLines } from './output.js';
 
 export function createSession({ fetch, onChange = () => {} }) {
   const session = { state: { lines: [], busy: false, history: [], cursor: 0 }, onChange };
@@ -45,24 +45,21 @@ export function createSession({ fetch, onChange = () => {} }) {
 }
 
 function count(session, fetch, repo) {
-  return whileBusy(session, async () => {
-    const progress = startProgress(session);
-    const outcome = await countRepository(fetch, repo, progress.update).then(resultLines, failed);
-    progress.stop();
-    return outcome;
-  });
+  const describe = ({ frame, done, total }) => progressLine(frame, done, total);
+  return whileBusy(session, describe, (update) => countRepository(fetch, repo, update).then(resultLines, failed));
 }
 
 function list(session, fetch, name) {
   const user = parseUser(name);
   if (user === null) return show(session, errorLine('lsUsage'), 'error');
-  return whileBusy(session, () => listRepos(fetch, user).then(repoLines, failed));
+  return whileBusy(session, ({ frame }) => listingLine(frame), () => listRepos(fetch, user).then(repoLines, failed));
 }
 
-async function whileBusy(session, work) {
+async function whileBusy(session, describe, work) {
   session.state.busy = true;
-  session.onChange();
-  const outcome = await work();
+  const progress = startProgress(session, describe);
+  const outcome = await work(progress.update);
+  progress.stop();
   session.state.busy = false;
   outcome.forEach((line) => show(session, line, line.startsWith('error') ? 'error' : 'output'));
 }
@@ -71,11 +68,11 @@ function failed(error) {
   return [errorLine(error.kind)];
 }
 
-function startProgress(session) {
+function startProgress(session, describe) {
   const line = { text: '', kind: 'progress' };
   const shown = { frame: 0, done: 0, total: 0 };
   const draw = () => {
-    line.text = progressLine(shown.frame, shown.done, shown.total);
+    line.text = describe(shown);
     session.onChange();
   };
   session.state.lines.push(line);

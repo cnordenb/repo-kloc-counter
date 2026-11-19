@@ -332,3 +332,51 @@ Part 1 of the development log. The decisions made in the log are listed in [DECI
 1. **The requirements.** Proposal, for the chief developer to add: "The command `ls {user}` will list the public
    repositories of that GitHub user, one `{owner}/{repo}` a line." "The command `ls` will leave forks out." "The
    command `ls` will give the error "no such GitHub user" for a user GitHub does not show."
+
+### 13:24:29: a progress line while `ls` waits
+
+#### What changed
+
+- **Progress line.** While `ls` waits for GitHub, the terminal shows `/ counting repositories...`, its first
+  character turning through `/`, `-`, `\`, `|` every 300 ms, as during a count.
+- **session.js.** `whileBusy` now starts and stops the progress line for both a count and `ls`; each passes how its
+  line reads. Starting the line tells the page the terminal is busy, so the separate call to `onChange` was taken out.
+- **output.js.** `listingLine` gives the line of `ls`; `turning` gives the character, for it and `progressLine`.
+- **Tests.** 57, up from 55: Test 54 (the line of `ls`) and Test 55 (its character turns every 300 ms), in
+  `tests/terminal.test.js`. Test 53 now mocks the timers, so that the progress line it starts does not keep the tests
+  from ending. Tests 54 and 55 became 56 and 57.
+- **Checked.** All 57 tests passed; Tests 54 and 55 failed before the change. Mutation testing of `src/session.js` left
+  4 mutants, one fewer than before, all of earlier kinds, and of `src/output.js` the 1 of before. The CRAP score of
+  every function is under 10, and no code is written twice. `check-rules.sh` passed.
+- **Documents.** `MAINTAINER.md`: the ls command. `TESTS.md`: Tests 54 and 55, and the numbers of 56 and 57.
+  `TERMINOLOGY.md`: progress line. `DECISIONS.md`.
+
+#### Not done
+
+- The new line was not seen against the real GitHub: the hour's 60 calls had been used by testing, and
+  `ls octocat` gave `error: GitHub's hourly rate limit exceeded`, as it should, until 13:32:41.
+- Like the rest of `ls`, the line has no requirement yet; see the questions of 13:13:59.
+
+### 13:28:43: the progress line turns twice as fast, with a longer dash
+
+#### What changed
+
+- **output.js.** `FRAME_MS` is 150, down from 300, and the second of the turning characters is `─` (U+2500, a line
+  drawn for terminals), not `-`: in a monospace font it fills the width of its cell, as `/`, `\` and `|` fill its
+  height. It holds for the progress lines of both a count and `ls`.
+- **Replaced.** The 300 ms of
+  [the terminal counts a repository's lines of code](#121426-the-terminal-counts-a-repositorys-lines-of-code), and the
+  `-` of [`package.json` added, and the progress line decided](#115052-packagejson-added-and-the-progress-line-decided).
+- **Tests.** 57, as before. Test 35 expects `─`; Tests 36 and 55 expect the character at 149 ms and at 150 ms.
+- **Checked.** All 57 tests passed; Tests 35, 36 and 55 failed with the old `FRAMES` and `FRAME_MS`. `src/output.js`
+  is saved as UTF-8, as `index.html` declares. `check-rules.sh` passed.
+- **Documents.** `MAINTAINER.md`: how a count works. `TESTS.md`: Tests 35, 36 and 55. `DECISIONS.md`.
+
+#### Not done
+
+- The page was not looked at in a browser: GitHub's hourly limit was used up until 13:32:41.
+
+#### Questions
+
+1. **Requirements 27 and 28.** They still say `-` and 300 ms. Proposal: "27. The character `X` will turn through
+   `/`, `─`, `\` and `|`, in that order, and round again." "28. The character `X` will change every 150 ms."

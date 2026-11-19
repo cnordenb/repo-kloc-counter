@@ -63,7 +63,7 @@ Functional completeness & correctness tests:
 - [Test 33](#test-33): input after error
 - [Test 34](#test-34): progress line
 - [Test 35](#test-35): turning character
-- [Test 36](#test-36): 300 ms
+- [Test 36](#test-36): 150 ms
 - [Test 37](#test-37): one decimal
 - [Test 38](#test-38): files counted
 - [Test 39](#test-39): exact lines
@@ -81,13 +81,15 @@ Functional completeness & correctness tests:
 - [Test 51](#test-51): ls of no such user
 - [Test 52](#test-52): ls without a user
 - [Test 53](#test-53): busy during ls
+- [Test 54](#test-54): ls progress line
+- [Test 55](#test-55): ls turning character
 
 Accessibility tests:
 
 Maintainability tests:
 
-- [Test 54](#test-54): no comments
-- [Test 55](#test-55): functions of 60 lines at most
+- [Test 56](#test-56): no comments
+- [Test 57](#test-57): functions of 60 lines at most
 
 ## Test 1
 
@@ -469,10 +471,10 @@ Frame 0, 3 done of 12 gives `/ counting lines... (3/12 files)`.
 `tests/terminal.test.js`, lines 56-58
 
 ### Purpose:
-Verify that the character turns through `/`, `-`, `\`, `|` and round again (Req. 27).
+Verify that the character turns through `/`, `─`, `\`, `|` and round again (Req. 27).
 
 ### Assertion expectation:
-Frames 0 to 4 start with `/`, `-`, `\`, `|`, `/`.
+Frames 0 to 4 start with `/`, `─`, `\`, `|`, `/`.
 
 ## Test 36
 
@@ -480,10 +482,10 @@ Frames 0 to 4 start with `/`, `-`, `\`, `|`, `/`.
 `tests/terminal.test.js`, lines 60-70
 
 ### Purpose:
-Verify that the turning character changes every 300 ms (Req. 28).
+Verify that the turning character changes every 150 ms (Req. 28).
 
 ### Assertion expectation:
-With mocked timers, the character is `/` at 299 ms and `-` at 300 ms.
+With mocked timers, the character is `/` at 149 ms and `─` at 150 ms.
 
 ## Test 37
 
@@ -664,7 +666,7 @@ Verify that `ls` without one user shows how to use it.
 ## Test 53
 
 ### File residence:
-`tests/terminal.test.js`, lines 145-150
+`tests/terminal.test.js`, lines 145-152
 
 ### Purpose:
 Prevent input typed while `ls` runs from being lost: the page must hear the terminal is busy.
@@ -675,6 +677,28 @@ While `ls` waits for GitHub, the last change the page was told of has `busy` tru
 ## Test 54
 
 ### File residence:
+`tests/terminal.test.js`, lines 154-160
+
+### Purpose:
+Verify that while `ls` waits, the progress line shows `/ counting repositories...`.
+
+### Assertion expectation:
+With GitHub not answering, the last line is `/ counting repositories...`.
+
+## Test 55
+
+### File residence:
+`tests/terminal.test.js`, lines 162-172
+
+### Purpose:
+Verify that while `ls` waits, the turning character changes every 150 ms, as in a count.
+
+### Assertion expectation:
+With mocked timers, the character is `/` at 149 ms and `─` at 150 ms.
+
+## Test 56
+
+### File residence:
 `tests/verify-rules.test.js`, lines 39-43
 
 ### Purpose:
@@ -683,7 +707,7 @@ Enforce that no code holds a comment (Rule 10).
 ### Assertion expectation:
 No line of a code file, strings aside, holds `//`, `/*`, `<!--` or, outside JavaScript, `#`.
 
-## Test 55
+## Test 57
 
 ### File residence:
 `tests/verify-rules.test.js`, lines 45-47

@@ -28,6 +28,6 @@ terminal - the whole page: lines of output above one line where the user types
 prompt - the line at the bottom of the terminal where the user types a link or a command, marked ">"
 command - a word typed at the prompt that is not a link: "help", "clear" or "ls"
 history - the input given at the prompt so far, gone through with the up and down arrows
-progress line - the line shown during a count, e.g. "/ counting lines... (3/12 files)", its first character turning
+progress line - the line during a count or "ls", e.g. "/ counting lines... (3/12 files)", its first character turning
 result - the line after a count, e.g. "18.4 KLOC · 171 files · 18385 lines", with a warning below it if partial count
 session - the state of the terminal in session.js: its lines, its history, and whether a count or "ls" is running

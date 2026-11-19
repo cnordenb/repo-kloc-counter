@@ -53,20 +53,20 @@ test('Test 34: the progress line shows the turning character, done and total', (
   assert.equal(progressLine(0, 3, 12), '/ counting lines... (3/12 files)');
 });
 
-test('Test 35: the turning character goes through / - \\ | and round again', () => {
-  assert.deepEqual([0, 1, 2, 3, 4].map((frame) => progressLine(frame, 0, 0)[0]), ['/', '-', '\\', '|', '/']);
+test('Test 35: the turning character goes through / ─ \\ | and round again', () => {
+  assert.deepEqual([0, 1, 2, 3, 4].map((frame) => progressLine(frame, 0, 0)[0]), ['/', '─', '\\', '|', '/']);
 });
 
-test('Test 36: the turning character changes every 300 ms', () => {
+test('Test 36: the turning character changes every 150 ms', () => {
   mock.timers.enable({ apis: ['setInterval'] });
   const session = createSession({ fetch: pending });
   session.submit(LINK);
-  mock.timers.tick(299);
+  mock.timers.tick(149);
   const before = session.lines.at(-1)[0];
   mock.timers.tick(1);
   const after = session.lines.at(-1)[0];
   mock.timers.reset();
-  assert.deepEqual([before, after], ['/', '-']);
+  assert.deepEqual([before, after], ['/', '─']);
 });
 
 test('Test 37: the result shows the KLOC with one decimal', async () => {
@@ -144,7 +144,29 @@ test('Test 52: ls without one user shows how to use it', async () => {
 
 test('Test 53: the page is told the terminal is busy as soon as ls starts', () => {
   const seen = [];
+  mock.timers.enable({ apis: ['setInterval'] });
   const session = createSession({ fetch: pending, onChange: () => seen.push(session.busy) });
   session.submit('ls cnordenb');
+  mock.timers.reset();
   assert.equal(seen.at(-1), true);
+});
+
+test('Test 54: while ls waits, the progress line shows / counting repositories...', () => {
+  mock.timers.enable({ apis: ['setInterval'] });
+  const session = createSession({ fetch: pending });
+  session.submit('ls cnordenb');
+  mock.timers.reset();
+  assert.equal(session.lines.at(-1), '/ counting repositories...');
+});
+
+test('Test 55: while ls waits, the turning character changes every 150 ms', () => {
+  mock.timers.enable({ apis: ['setInterval'] });
+  const session = createSession({ fetch: pending });
+  session.submit('ls cnordenb');
+  mock.timers.tick(149);
+  const before = session.lines.at(-1)[0];
+  mock.timers.tick(1);
+  const after = session.lines.at(-1)[0];
+  mock.timers.reset();
+  assert.deepEqual([before, after], ['/', '─']);
 });

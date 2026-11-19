@@ -1,6 +1,6 @@
-export const FRAME_MS = 300;
+export const FRAME_MS = 150;
 
-const FRAMES = ['/', '-', '\\', '|'];
+const FRAMES = ['/', '─', '\\', '|'];
 
 export const GREETING = 'Repo KLOC Counter. Paste a link to a public GitHub repository, or type help.';
 
@@ -31,8 +31,16 @@ export function repoLines(names) {
   return names.length > 0 ? names : ['no public repositories'];
 }
 
+function turning(frame) {
+  return FRAMES[frame % FRAMES.length];
+}
+
 export function progressLine(frame, done, total) {
-  return `${FRAMES[frame % FRAMES.length]} counting lines... (${done}/${total} files)`;
+  return `${turning(frame)} counting lines... (${done}/${total} files)`;
+}
+
+export function listingLine(frame) {
+  return `${turning(frame)} counting repositories...`;
 }
 
 export function resultLines({ files, lines, missed, truncated }) {
