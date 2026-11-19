@@ -123,7 +123,8 @@ it. For example, the hash style is `"line": ["#"], "block": []` and lists `.py`,
 ### The ls command
 
 `ls cnordenb` lists the public repositories of a GitHub user, or of an organisation, one `owner/name` a line, so that
-any line can be typed back to count it. `listRepos` in `github.js` asks
+any line can be typed back to count it. Above the list, `repoLines` in `output.js` puts
+`cnordenb has 7 public source repositories.` and a line of 40 dashes. `listRepos` in `github.js` asks
 `https://api.github.com/users/cnordenb/repos?type=owner&sort=full_name&per_page=100&page=1`, then page 2 and on while
 a page holds 100, and leaves out every repository whose `fork` is true. Each page is one call against the limit of 60
 an hour. A 404 gives `error: no such GitHub user`. While it waits, `whileBusy` in `session.js` marks the terminal

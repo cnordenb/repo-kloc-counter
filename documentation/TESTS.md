@@ -80,16 +80,19 @@ Functional completeness & correctness tests:
 - [Test 50](#test-50): ls with none
 - [Test 51](#test-51): ls of no such user
 - [Test 52](#test-52): ls without a user
-- [Test 53](#test-53): busy during ls
-- [Test 54](#test-54): ls progress line
-- [Test 55](#test-55): ls turning character
+- [Test 53](#test-53): ls count line
+- [Test 54](#test-54): ls dashes
+- [Test 55](#test-55): ls of one repository
+- [Test 56](#test-56): busy during ls
+- [Test 57](#test-57): ls progress line
+- [Test 58](#test-58): ls turning character
 
 Accessibility tests:
 
 Maintainability tests:
 
-- [Test 56](#test-56): no comments
-- [Test 57](#test-57): functions of 60 lines at most
+- [Test 59](#test-59): no comments
+- [Test 60](#test-60): functions of 60 lines at most
 
 ## Test 1
 
@@ -383,7 +386,7 @@ Verify that a link without both owner and repository is not a valid link (Req. 1
 `tests/links.test.js`, lines 38-40
 
 ### Purpose:
-Verify that `{owner}/{repo}` alone is accepted, as if after `https://github.com/`.
+Verify that `{owner}/{repo}` alone is accepted, as if after `https://github.com/` (Req. 40).
 
 ### Assertion expectation:
 `cnordenb/aoe2vils.net` gives owner `cnordenb`, repo `aoe2vils.net`.
@@ -402,7 +405,7 @@ Verify that another host without a scheme is not a valid link (Req. 18).
 ## Test 29
 
 ### File residence:
-`tests/terminal.test.js`, lines 17-20
+`tests/terminal.test.js`, lines 21-24
 
 ### Purpose:
 Verify that `help` lists the accepted link and the commands (Req. 7).
@@ -413,7 +416,7 @@ The help shows `github.com/{owner}/{repo}`, `help` and `clear`.
 ## Test 30
 
 ### File residence:
-`tests/terminal.test.js`, lines 22-27
+`tests/terminal.test.js`, lines 26-31
 
 ### Purpose:
 Verify that `clear` removes all output from the terminal (Req. 8).
@@ -424,7 +427,7 @@ After `help` and `clear`, the terminal has no lines.
 ## Test 31
 
 ### File residence:
-`tests/terminal.test.js`, lines 29-35
+`tests/terminal.test.js`, lines 33-39
 
 ### Purpose:
 Verify that the up arrow puts the previous input in the prompt (Req. 9).
@@ -435,7 +438,7 @@ After `help`, `clear`, two presses of up give `help`.
 ## Test 32
 
 ### File residence:
-`tests/terminal.test.js`, lines 37-44
+`tests/terminal.test.js`, lines 41-48
 
 ### Purpose:
 Verify that the down arrow puts the next input in the prompt (Req. 10).
@@ -446,7 +449,7 @@ After `help`, `clear`, up, up, a press of down gives `clear`.
 ## Test 33
 
 ### File residence:
-`tests/terminal.test.js`, lines 46-50
+`tests/terminal.test.js`, lines 50-54
 
 ### Purpose:
 Verify that the prompt accepts new input after an error (Req. 11).
@@ -457,7 +460,7 @@ After the error for a 404, the session is not busy.
 ## Test 34
 
 ### File residence:
-`tests/terminal.test.js`, lines 52-54
+`tests/terminal.test.js`, lines 56-58
 
 ### Purpose:
 Verify the form of the progress line (Req. 26).
@@ -468,7 +471,7 @@ Frame 0, 3 done of 12 gives `/ counting lines... (3/12 files)`.
 ## Test 35
 
 ### File residence:
-`tests/terminal.test.js`, lines 56-58
+`tests/terminal.test.js`, lines 60-62
 
 ### Purpose:
 Verify that the character turns through `/`, `─`, `\`, `|` and round again (Req. 27).
@@ -479,7 +482,7 @@ Frames 0 to 4 start with `/`, `─`, `\`, `|`, `/`.
 ## Test 36
 
 ### File residence:
-`tests/terminal.test.js`, lines 60-70
+`tests/terminal.test.js`, lines 64-74
 
 ### Purpose:
 Verify that the turning character changes every 150 ms (Req. 28).
@@ -490,7 +493,7 @@ With mocked timers, the character is `/` at 149 ms and `─` at 150 ms.
 ## Test 37
 
 ### File residence:
-`tests/terminal.test.js`, lines 72-74
+`tests/terminal.test.js`, lines 76-78
 
 ### Purpose:
 Verify that the result shows the KLOC with one decimal (Req. 31).
@@ -501,7 +504,7 @@ Verify that the result shows the KLOC with one decimal (Req. 31).
 ## Test 38
 
 ### File residence:
-`tests/terminal.test.js`, lines 76-78
+`tests/terminal.test.js`, lines 80-82
 
 ### Purpose:
 Verify that the result shows the number of files counted (Req. 32).
@@ -512,7 +515,7 @@ Verify that the result shows the number of files counted (Req. 32).
 ## Test 39
 
 ### File residence:
-`tests/terminal.test.js`, lines 80-82
+`tests/terminal.test.js`, lines 84-86
 
 ### Purpose:
 Verify that the result shows the exact number of lines of code (Req. 33).
@@ -523,7 +526,7 @@ Verify that the result shows the exact number of lines of code (Req. 33).
 ## Test 40
 
 ### File residence:
-`tests/terminal.test.js`, lines 84-87
+`tests/terminal.test.js`, lines 88-91
 
 ### Purpose:
 Verify the result of a repository with no code files (Req. 34).
@@ -534,7 +537,7 @@ Only `README.md` gives exactly `0.0 KLOC · 0 files · 0 lines`, with no warning
 ## Test 41
 
 ### File residence:
-`tests/terminal.test.js`, lines 89-91
+`tests/terminal.test.js`, lines 93-95
 
 ### Purpose:
 Verify that an empty repository, GitHub's 409, gives the result of no code files (Req. 34).
@@ -545,7 +548,7 @@ A 409 gives exactly `0.0 KLOC · 0 files · 0 lines`, with no warning.
 ## Test 42
 
 ### File residence:
-`tests/terminal.test.js`, lines 93-96
+`tests/terminal.test.js`, lines 97-100
 
 ### Purpose:
 Verify that a file list cut short gives a warning of a partial count (Req. 35).
@@ -556,7 +559,7 @@ The line after the result starts `warning: the count is partial`.
 ## Test 43
 
 ### File residence:
-`tests/terminal.test.js`, lines 98-101
+`tests/terminal.test.js`, lines 102-105
 
 ### Purpose:
 Verify that a file left out gives a warning of a partial count (Req. 36).
@@ -567,7 +570,7 @@ The line after the result starts `warning: the count is partial`.
 ## Test 44
 
 ### File residence:
-`tests/terminal.test.js`, lines 103-105
+`tests/terminal.test.js`, lines 107-109
 
 ### Purpose:
 Verify the error for input that is not a valid link (Req. 37).
@@ -578,7 +581,7 @@ A `gitlab.com` link shows only `error: not a valid link`.
 ## Test 45
 
 ### File residence:
-`tests/terminal.test.js`, lines 107-110
+`tests/terminal.test.js`, lines 111-114
 
 ### Purpose:
 Verify the error for GitHub's hourly rate limit exceeded (Req. 38).
@@ -589,7 +592,7 @@ A 403 with `x-ratelimit-remaining: 0` shows only `error: GitHub's hourly rate li
 ## Test 46
 
 ### File residence:
-`tests/terminal.test.js`, lines 112-115
+`tests/terminal.test.js`, lines 116-119
 
 ### Purpose:
 Verify the error for a repository GitHub does not show (Req. 39).
@@ -600,10 +603,10 @@ A 404 shows only `error: not a public repository, or no such repository`.
 ## Test 47
 
 ### File residence:
-`tests/terminal.test.js`, lines 117-121
+`tests/terminal.test.js`, lines 121-124
 
 ### Purpose:
-Verify that `ls {user}` lists the user's public repositories as `owner/name`, one a line.
+Verify that `ls {user}` lists the user's public repositories as `owner/name`, one a line, after the two first (Req. 41).
 
 ### Assertion expectation:
 Two repositories give `cnordenb/aoe2vils.net` and `cnordenb/onkos`, in that order.
@@ -611,10 +614,10 @@ Two repositories give `cnordenb/aoe2vils.net` and `cnordenb/onkos`, in that orde
 ## Test 48
 
 ### File residence:
-`tests/terminal.test.js`, lines 123-126
+`tests/terminal.test.js`, lines 126-129
 
 ### Purpose:
-Verify that `ls` leaves forks out.
+Verify that `ls` leaves forks out (Req. 42).
 
 ### Assertion expectation:
 Of one repository and one fork, only `cnordenb/onkos` is shown.
@@ -622,10 +625,10 @@ Of one repository and one fork, only `cnordenb/onkos` is shown.
 ## Test 49
 
 ### File residence:
-`tests/terminal.test.js`, lines 128-131
+`tests/terminal.test.js`, lines 131-133
 
 ### Purpose:
-Verify that `ls` lists every page of GitHub's answer, 100 repositories a page.
+Verify that `ls` lists every page of GitHub's answer, 100 repositories a page (Req. 44).
 
 ### Assertion expectation:
 101 repositories give 101 lines.
@@ -633,21 +636,21 @@ Verify that `ls` lists every page of GitHub's answer, 100 repositories a page.
 ## Test 50
 
 ### File residence:
-`tests/terminal.test.js`, lines 133-135
+`tests/terminal.test.js`, lines 135-138
 
 ### Purpose:
-Verify that `ls` of a user without public repositories says so.
+Verify that `ls` of a user without public repositories says so (Req. 47).
 
 ### Assertion expectation:
-No repositories give `no public repositories`.
+No repositories give the two first lines, with 0, then `no public repositories`.
 
 ## Test 51
 
 ### File residence:
-`tests/terminal.test.js`, lines 137-139
+`tests/terminal.test.js`, lines 140-142
 
 ### Purpose:
-Verify the error of `ls` for a user GitHub does not know.
+Verify the error of `ls` for a user GitHub does not know (Req. 48).
 
 ### Assertion expectation:
 A 404 gives `error: no such GitHub user`.
@@ -655,10 +658,10 @@ A 404 gives `error: no such GitHub user`.
 ## Test 52
 
 ### File residence:
-`tests/terminal.test.js`, lines 141-143
+`tests/terminal.test.js`, lines 144-146
 
 ### Purpose:
-Verify that `ls` without one user shows how to use it.
+Verify that `ls` without one user shows how to use it (Req. 49).
 
 ### Assertion expectation:
 `ls` alone gives `error: ls takes one GitHub user, such as: ls cnordenb`.
@@ -666,7 +669,40 @@ Verify that `ls` without one user shows how to use it.
 ## Test 53
 
 ### File residence:
-`tests/terminal.test.js`, lines 145-152
+`tests/terminal.test.js`, lines 148-152
+
+### Purpose:
+Verify that the first line of `ls` says how many public source repositories the user has (Req. 50).
+
+### Assertion expectation:
+Two repositories and one fork give `cnordenb has 2 public source repositories.`
+
+## Test 54
+
+### File residence:
+`tests/terminal.test.js`, lines 154-157
+
+### Purpose:
+Verify that the second line of `ls` is 40 dashes (Req. 51).
+
+### Assertion expectation:
+The second line is `-` 40 times.
+
+## Test 55
+
+### File residence:
+`tests/terminal.test.js`, lines 159-162
+
+### Purpose:
+Verify that the first line of `ls` speaks of one repository in the singular (Req. 52).
+
+### Assertion expectation:
+One repository gives `cnordenb has 1 public source repository.`
+
+## Test 56
+
+### File residence:
+`tests/terminal.test.js`, lines 164-171
 
 ### Purpose:
 Prevent input typed while `ls` runs from being lost: the page must hear the terminal is busy.
@@ -674,29 +710,29 @@ Prevent input typed while `ls` runs from being lost: the page must hear the term
 ### Assertion expectation:
 While `ls` waits for GitHub, the last change the page was told of has `busy` true.
 
-## Test 54
+## Test 57
 
 ### File residence:
-`tests/terminal.test.js`, lines 154-160
+`tests/terminal.test.js`, lines 173-179
 
 ### Purpose:
-Verify that while `ls` waits, the progress line shows `/ counting repositories...`.
+Verify that while `ls` waits, the progress line shows `/ counting repositories...` (Req. 45).
 
 ### Assertion expectation:
 With GitHub not answering, the last line is `/ counting repositories...`.
 
-## Test 55
+## Test 58
 
 ### File residence:
-`tests/terminal.test.js`, lines 162-172
+`tests/terminal.test.js`, lines 181-191
 
 ### Purpose:
-Verify that while `ls` waits, the turning character changes every 150 ms, as in a count.
+Verify that while `ls` waits, the turning character changes every 150 ms, as in a count (Req. 46).
 
 ### Assertion expectation:
 With mocked timers, the character is `/` at 149 ms and `─` at 150 ms.
 
-## Test 56
+## Test 59
 
 ### File residence:
 `tests/verify-rules.test.js`, lines 39-43
@@ -707,7 +743,7 @@ Enforce that no code holds a comment (Rule 10).
 ### Assertion expectation:
 No line of a code file, strings aside, holds `//`, `/*`, `<!--` or, outside JavaScript, `#`.
 
-## Test 57
+## Test 60
 
 ### File residence:
 `tests/verify-rules.test.js`, lines 45-47

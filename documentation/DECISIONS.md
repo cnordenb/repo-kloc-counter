@@ -30,6 +30,12 @@ an earlier one, the earlier one is named after it, with its own link.
 - **Errors of ls.** `error: no such GitHub user` for a 404, `no public repositories` for none, and how to use it for
   `ls` without one name of letters, digits and hyphens.
   [2026-11-19 13:13:59](DEVLOG/DEVLOG1.md#131359-the-ls-command-lists-a-users-repositories)
+- **The first two lines of ls.** `{user} has {n} public source repositories.`, `repository` when n is 1, then 40
+  dashes. "source" is kept, as in the format given; a source is a repository that is not a fork.
+  [2026-11-19 13:41:59](DEVLOG/DEVLOG1.md#134159-ls-says-how-many-public-source-repositories-a-user-has)
+  Requirements 50 to 52. [2026-11-19 13:45:46](DEVLOG/DEVLOG1.md#134546-the-first-two-lines-of-ls-have-their-requirements)
+- **ls of a user with none.** The two lines, with 0, then `no public repositories`, as Requirement 47 still asks.
+  [2026-11-19 13:41:59](DEVLOG/DEVLOG1.md#134159-ls-says-how-many-public-source-repositories-a-user-has)
 - **The default branch is `HEAD`.** The file list is asked for at `git/trees/HEAD?recursive=1`: one API call a count.
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
 - **The excluded extensions.** Those Linguist gives both to a programming language and to prose: `.asc`, `.fr`, `.md`,

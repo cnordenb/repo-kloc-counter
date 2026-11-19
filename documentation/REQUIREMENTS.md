@@ -68,3 +68,6 @@
 47. A user with no public repositories will give the result "no public repositories".
 48. A user GitHub does not show will give the error "no such GitHub user".
 49. `ls` without exactly one user will give the error "ls takes one GitHub user, such as: ls cnordenb".
+50. The command ls will first show the line {user} has {n} public source repositories., where n is the number of repositories listed."
+51. The command ls will show a line of 40 dashes second."
+52. A user with one repository will give {user} has 1 public source repository."

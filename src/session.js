@@ -52,7 +52,8 @@ function count(session, fetch, repo) {
 function list(session, fetch, name) {
   const user = parseUser(name);
   if (user === null) return show(session, errorLine('lsUsage'), 'error');
-  return whileBusy(session, ({ frame }) => listingLine(frame), () => listRepos(fetch, user).then(repoLines, failed));
+  const work = () => listRepos(fetch, user).then((names) => repoLines(user, names), failed);
+  return whileBusy(session, ({ frame }) => listingLine(frame), work);
 }
 
 async function whileBusy(session, describe, work) {

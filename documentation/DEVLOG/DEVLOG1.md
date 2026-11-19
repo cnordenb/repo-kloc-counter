@@ -380,3 +380,54 @@ Part 1 of the development log. The decisions made in the log are listed in [DECI
 
 1. **Requirements 27 and 28.** They still say `-` and 300 ms. Proposal: "27. The character `X` will turn through
    `/`, `─`, `\` and `|`, in that order, and round again." "28. The character `X` will change every 150 ms."
+
+### 13:41:59: `ls` says how many public source repositories a user has
+
+#### What changed
+
+- **Answers.** Of the questions of 13:13:59, in
+  [the `ls` command lists a user's repositories](#131359-the-ls-command-lists-a-users-repositories): Requirements 41
+  to 49 were added, and 40 for `{owner}/{repo}` alone (1). Of the question of 13:28:43, in
+  [the progress line turns twice as fast, with a longer dash](#132843-the-progress-line-turns-twice-as-fast-with-a-longer-dash):
+  Requirements 27 and 28 now say `─` and 150 ms (1).
+- **ls.** Its first two lines are `{user} has {n} public source repositories.` and 40 dashes, then the list. With one
+  repository the line says `repository`. With none, `no public repositories` follows the two lines, as Requirement 47
+  asks.
+- **output.js.** `repoLines` takes the user as well as the names, and makes the two lines.
+- **Tests.** 60, up from 57: Test 53 (the count line, forks left out of n), Test 54 (40 dashes) and Test 55 (one
+  repository), in `tests/terminal.test.js`. Tests 47 to 49 look past the first two lines; Test 50 expects the two
+  lines before `no public repositories`. Tests 53 to 57 became 56 to 60. The tests of `ls` and Test 27 name their
+  requirements in `TESTS.md`.
+- **Checked.** All 60 tests passed; Tests 47 to 50 and 53 to 55 failed before the change. Mutation testing of
+  `src/output.js` and `src/session.js` left only the survivors of before. The CRAP score of every function is under
+  10, and no code is written twice. In a headless Brave against GitHub, `ls cnordenb` gave
+  `cnordenb has 7 public source repositories.`, the dashes and 7 repositories. `check-rules.sh` passed.
+- **Documents.** `MAINTAINER.md`: the ls command. `TESTS.md`: Tests 47 to 60, and requirement numbers.
+  `DECISIONS.md`.
+
+#### Not done
+
+- No test checks Requirement 43, the order of the names: the order is GitHub's, asked for with `sort=full_name`, and
+  `fakeGitHub` gives back the order it is given.
+
+#### Questions
+
+1. **Requirements for the first two lines.** None covers them, and Requirement 47 keeps `no public repositories`
+   under them. Proposal: "50. The command `ls` will first show the line `{user} has {n} public source repositories.`,
+   where n is the number of repositories listed." "51. The command `ls` will show a line of 40 dashes second." "52. A
+   user with one repository will give `{user} has 1 public source repository.`"
+
+### 13:45:46: the first two lines of `ls` have their requirements
+
+#### What changed
+
+- **Answers.** Of the question of 13:41:59, in
+  [`ls` says how many public source repositories a user has](#134159-ls-says-how-many-public-source-repositories-a-user-has):
+  Requirements 50 to 52 were added as proposed (1). The code already met them and was not changed.
+- **Tests.** 60, as before. Tests 53, 54 and 55 name Requirements 50, 51 and 52 in `TESTS.md`.
+- **Checked.** All 60 tests passed. `check-rules.sh` passed.
+- **Documents.** `TESTS.md`: Tests 53 to 55. `DECISIONS.md`.
+
+#### Not done
+
+- Requirement 43, the order of the names, still has no test; see 13:41:59.

@@ -36,12 +36,12 @@ const longFunctions = (file) => {
   });
 };
 
-test('Test 56: no code holds a comment', () => {
+test('Test 59: no code holds a comment', () => {
   const commented = codeFiles.flatMap((file) =>
     withoutStrings(file).flatMap((line, i) => (comment(file).test(line) ? [`${file}:${i + 1}`] : [])));
   assert.deepEqual(commented, []);
 });
 
-test('Test 57: no function is longer than 60 lines of code', () => {
+test('Test 60: no function is longer than 60 lines of code', () => {
   assert.deepEqual(codeFiles.flatMap(longFunctions), []);
 });

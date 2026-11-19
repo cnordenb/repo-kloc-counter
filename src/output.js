@@ -27,8 +27,10 @@ export function errorLine(kind) {
   return ERRORS[kind] ?? ERRORS.unreachable;
 }
 
-export function repoLines(names) {
-  return names.length > 0 ? names : ['no public repositories'];
+export function repoLines(user, names) {
+  const noun = names.length === 1 ? 'repository' : 'repositories';
+  const listed = names.length > 0 ? names : ['no public repositories'];
+  return [`${user} has ${names.length} public source ${noun}.`, '-'.repeat(40), ...listed];
 }
 
 function turning(frame) {

@@ -14,6 +14,10 @@ const resultOf = async (options) => (await outputAfter([LINK], fakeGitHub(option
 
 const pending = () => new Promise(() => {});
 
+const DASHES = '-'.repeat(40);
+
+const listed = async (repos) => (await outputAfter(['ls cnordenb'], fakeGitHub({ repos }))).slice(2);
+
 test('Test 29: help lists the accepted link and the commands', async () => {
   const help = (await outputAfter(['help'])).join('\n');
   assert.deepEqual(['github.com/{owner}/{repo}', 'help', 'clear'].filter((word) => !help.includes(word)), []);
@@ -116,22 +120,21 @@ test('Test 46: a repository GitHub does not show gives "not a public repository,
 
 test('Test 47: ls lists the public repositories of a user, one owner/name a line', async () => {
   const repos = [{ full_name: 'cnordenb/aoe2vils.net', fork: false }, { full_name: 'cnordenb/onkos', fork: false }];
-  const expected = ['cnordenb/aoe2vils.net', 'cnordenb/onkos'];
-  assert.deepEqual(await outputAfter(['ls cnordenb'], fakeGitHub({ repos })), expected);
+  assert.deepEqual(await listed(repos), ['cnordenb/aoe2vils.net', 'cnordenb/onkos']);
 });
 
 test('Test 48: ls leaves forks out', async () => {
   const repos = [{ full_name: 'cnordenb/onkos', fork: false }, { full_name: 'cnordenb/linguist', fork: true }];
-  assert.deepEqual(await outputAfter(['ls cnordenb'], fakeGitHub({ repos })), ['cnordenb/onkos']);
+  assert.deepEqual(await listed(repos), ['cnordenb/onkos']);
 });
 
 test('Test 49: ls lists every page of repositories', async () => {
-  const output = await outputAfter(['ls cnordenb'], fakeGitHub({ repos: ownRepos('cnordenb', 101) }));
-  assert.equal(output.length, 101);
+  assert.equal((await listed(ownRepos('cnordenb', 101))).length, 101);
 });
 
 test('Test 50: ls of a user without public repositories says so', async () => {
-  assert.deepEqual(await outputAfter(['ls cnordenb']), ['no public repositories']);
+  const expected = ['cnordenb has 0 public source repositories.', DASHES, 'no public repositories'];
+  assert.deepEqual(await outputAfter(['ls cnordenb']), expected);
 });
 
 test('Test 51: ls of a user GitHub does not know gives "no such GitHub user"', async () => {
@@ -142,7 +145,23 @@ test('Test 52: ls without one user shows how to use it', async () => {
   assert.deepEqual(await outputAfter(['ls']), ['error: ls takes one GitHub user, such as: ls cnordenb']);
 });
 
-test('Test 53: the page is told the terminal is busy as soon as ls starts', () => {
+test('Test 53: the first line of ls says how many public source repositories the user has', async () => {
+  const repos = [...ownRepos('cnordenb', 2), { full_name: 'cnordenb/linguist', fork: true }];
+  const output = await outputAfter(['ls cnordenb'], fakeGitHub({ repos }));
+  assert.equal(output[0], 'cnordenb has 2 public source repositories.');
+});
+
+test('Test 54: the second line of ls is 40 dashes', async () => {
+  const output = await outputAfter(['ls cnordenb'], fakeGitHub({ repos: ownRepos('cnordenb', 2) }));
+  assert.equal(output[1], DASHES);
+});
+
+test('Test 55: the first line of ls speaks of one repository in the singular', async () => {
+  const output = await outputAfter(['ls cnordenb'], fakeGitHub({ repos: ownRepos('cnordenb', 1) }));
+  assert.equal(output[0], 'cnordenb has 1 public source repository.');
+});
+
+test('Test 56: the page is told the terminal is busy as soon as ls starts', () => {
   const seen = [];
   mock.timers.enable({ apis: ['setInterval'] });
   const session = createSession({ fetch: pending, onChange: () => seen.push(session.busy) });
@@ -151,7 +170,7 @@ test('Test 53: the page is told the terminal is busy as soon as ls starts', () =
   assert.equal(seen.at(-1), true);
 });
 
-test('Test 54: while ls waits, the progress line shows / counting repositories...', () => {
+test('Test 57: while ls waits, the progress line shows / counting repositories...', () => {
   mock.timers.enable({ apis: ['setInterval'] });
   const session = createSession({ fetch: pending });
   session.submit('ls cnordenb');
@@ -159,7 +178,7 @@ test('Test 54: while ls waits, the progress line shows / counting repositories..
   assert.equal(session.lines.at(-1), '/ counting repositories...');
 });
 
-test('Test 55: while ls waits, the turning character changes every 150 ms', () => {
+test('Test 58: while ls waits, the turning character changes every 150 ms', () => {
   mock.timers.enable({ apis: ['setInterval'] });
   const session = createSession({ fetch: pending });
   session.submit('ls cnordenb');
