@@ -5,30 +5,35 @@
    - [Files and folders](#files-and-folders)
    - [Diagram](#diagram)
    - [How a count works](#how-a-count-works)
+   - [Comment styles](#comment-styles)
    - [Trying the page on your computer](#trying-the-page-on-your-computer)
    - [Tests](#tests)
    - [Rules for changing the code](#rules-for-changing-the-code)
 
 ## Update the list of code extensions
 
-A file is counted when its extension is in `src/extensions.json`. That list is made from the programming languages in
-GitHub Linguist's
-[`languages.yml`](https://github.com/github-linguist/linguist/blob/main/lib/linguist/languages.yml), minus the
-extensions in `.github/scripts/excluded-extensions.json`. Linguist adds languages now and then; update the list a few
-times a year, or when someone reports a language that is not counted.
+A file is counted when its extension is in `src/data/extensions.json`. That list is made from the programming
+languages in GitHub Linguist's
+[`languages.yml`](https://github.com/github-linguist/linguist/blob/main/lib/linguist/languages.yml), plus the
+extensions in `.github/scripts/included-extensions.json` (`.html` and `.css`), minus those in
+`.github/scripts/excluded-extensions.json`. Linguist adds languages now and then; update the list a few times a year,
+or when someone reports a language that is not counted.
 
 You need Node.js 22 or newer and an internet connection. Run the commands from the project's folder.
 
 1. **Run the updater.** `npm run update-extensions`. It prints, for example,
-   `976 extensions written to src/extensions.json, 6 excluded`. If it prints `... answered 404`, Linguist has moved
-   the file: find its new address and change `SOURCE` in `.github/scripts/update-extensions.js`.
+   `978 extensions in src/data/extensions.json: 2 included, 6 excluded`. If it prints `... answered 404`, Linguist
+   has moved the file: find its new address and change `SOURCE` in `.github/scripts/update-extensions.js`.
 2. **Exclude an extension, if one is wrongly counted.** Some extensions belong both to a programming language and to
    something else, such as `.md`, which is Markdown but also "GCC Machine Description". Add the extension, in lower
    case and with its dot, to `.github/scripts/excluded-extensions.json`, then run step 1 again. To count it again,
    take it out and run step 1.
-3. **Check.** `npm ci`, then `npm test`: every test must pass.
-4. **Look at the change.** `git diff src/extensions.json` shows the extensions added and removed.
-5. **Commit** `src/extensions.json`, and `excluded-extensions.json` if you changed it.
+3. **Include an extension that is not a programming language, if it should be counted.** Add it in the same way to
+   `.github/scripts/included-extensions.json`, run step 1 again, and give it a comment style; see
+   [Comment styles](#comment-styles).
+4. **Check.** `npm ci`, then `npm test`: every test must pass.
+5. **Look at the change.** `git diff src/data/extensions.json` shows the extensions added and removed.
+6. **Commit** `src/data/extensions.json`, and the files you changed in steps 2 and 3.
 
 ## How the code works
 
@@ -50,8 +55,9 @@ functions in `src/`, which the tests call directly with a fake GitHub, so they n
 | `.github/` | What GitHub shows contributors: how to contribute, report a bug or a security hole, the pull request form, and the accessibility checklist. |
 | `.github/workflows/checks.yml` | Tells GitHub to run the checks and the tests on every push and pull request. |
 | `.github/scripts/check-rules.sh` | Checks the rules a script can check; see [Tests](#tests). |
-| `.github/scripts/update-extensions.js` | Makes `src/extensions.json`; see [the first chapter](#update-the-list-of-code-extensions). |
+| `.github/scripts/update-extensions.js` | Makes `src/data/extensions.json`; see [the first chapter](#update-the-list-of-code-extensions). |
 | `.github/scripts/excluded-extensions.json` | Extensions never counted, though Linguist calls them programming. |
+| `.github/scripts/included-extensions.json` | Extensions counted, though Linguist does not call them programming: `.html`, `.css`. |
 | `.gitattributes`, `.gitignore` | How Git treats line endings, and which files it leaves out. |
 | `index.html` | The page: the terminal's layout and colours. GitHub Pages serves it. |
 | `package.json`, `package-lock.json` | Tell npm how to run the tests. There are no dependencies; install with `npm ci`, never `npm install` (Rule 27). |
@@ -59,9 +65,10 @@ functions in `src/`, which the tests call directly with a fake GitHub, so they n
 | `src/session.js` | The terminal itself: what was shown, the history of input, the commands, and a count with its progress line. |
 | `src/link.js` | Turns what the user typed into an owner and a repository, or into "not a valid link". |
 | `src/github.js` | Asks GitHub for the list of files, and reads a file, trying twice. |
-| `src/count.js` | Picks the code files and counts their lines that are not blank. |
+| `src/count.js` | Picks the code files and counts their lines of code: not blank, and not only comment. |
 | `src/output.js` | Every text the terminal shows: help, errors, the progress line and the result. |
-| `src/extensions.json` | The extensions of code files, made by `update-extensions.js`. Do not edit it by hand. |
+| `src/data/extensions.json` | The extensions of code files, made by `update-extensions.js`. Do not edit it by hand. |
+| `src/data/comments.json` | How comments are written, per comment style, and which extensions use each style. |
 | `tests/` | The tests, and `fake-github.js`, a stand-in for GitHub that the tests use. |
 
 ### Diagram
@@ -74,6 +81,7 @@ flowchart LR
   session --> output[output.js]
   session --> count[count.js]
   count --> ext[extensions.json]
+  count --> comments[comments.json]
   count --> github[github.js]
 ```
 
@@ -85,13 +93,28 @@ flowchart LR
    `https://api.github.com/repos/tj/commander.js/git/trees/HEAD?recursive=1`. That is the only call that counts
    against GitHub's limit of 60 calls an hour without a token. A 404 means private or missing; a missing quota,
    header `x-ratelimit-remaining: 0`, means the limit is reached; a 409 means an empty repository.
-3. `isCodeFile` in `count.js` keeps the paths whose extension, such as `.js` or `.coffee.md`, is in `extensions.json`.
+3. `extensionOf` in `count.js` keeps the paths whose extension, such as `.js` or `.coffee.md`, is in
+   `extensions.json`.
 4. `readFile` fetches each kept file from `raw.githubusercontent.com`, which does not count against the limit, eight
    at a time. A file that fails twice is left out, and the result warns that the count is partial.
-5. `countLines` counts the lines with at least one character that is not whitespace. `resultLines` in `output.js`
-   shows them as `18.4 KLOC · 171 files · 18385 lines`.
+5. `countLines` blanks out the comments of the file's comment style, then counts the lines with at least one
+   character that is not whitespace. `resultLines` in `output.js` shows them as `15.5 KLOC · 171 files · 15506 lines`.
 
 While this runs, `session.js` shows the progress line and turns its first character every 300 ms (`FRAME_MS`).
+
+### Comment styles
+
+`src/data/comments.json` lists comment styles, such as C, hash or HTML. Each has `line`, the markers of a comment that
+runs to the end of the line, `block`, the pairs that open and close a comment, and `extensions`, the files that use
+it. For example, the hash style is `"line": ["#"], "block": []` and lists `.py`, `.rb` and `.sh`.
+
+- A line comment counts only when it starts the line, after spaces: `# note` is not a line of code, `a = 1  # note`
+  is.
+- A block comment blanks out every line it covers alone: three lines of `/* ... */` are not lines of code.
+- An extension in no style is counted with its comments, as if they were code. To fix that for a language, add its
+  extensions to the style it uses, or add a style. Each extension must be in `extensions.json` and in one style only.
+- A block marker is found anywhere, even inside a string, so `"/*"` in a string can hide the lines after it, up to
+  the next `*/`. This is rare, and accepted to keep the counting simple.
 
 ### Trying the page on your computer
 

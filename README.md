@@ -17,11 +17,13 @@ GitHub repository at the prompt and press Enter:
 
 ```
 > https://github.com/tj/commander.js
-18.4 KLOC · 171 files · 18385 lines
+15.5 KLOC · 171 files · 15506 lines
 ```
 
-A line of code is a line that is not blank, in a file whose extension belongs to a programming language in
-[GitHub Linguist](https://github.com/github-linguist/linguist/blob/main/lib/linguist/languages.yml). Type `help` for
+A line of code is a line that is neither blank nor only a comment, in an `.html` or `.css` file or a file whose
+extension belongs to a programming language in
+[GitHub Linguist](https://github.com/github-linguist/linguist/blob/main/lib/linguist/languages.yml). Comments are
+recognised in the common languages; in the others they are counted. Type `help` for
 the commands. Without a token, GitHub allows 60 counts an hour from one address.
 
 ## Contributing

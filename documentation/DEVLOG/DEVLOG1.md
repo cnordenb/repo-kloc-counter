@@ -220,3 +220,46 @@ Part 1 of the development log. The decisions made in the log are listed in [DECI
 - Accessibility was not looked at.
 - The page was not tried on a phone, nor in Firefox or Safari.
 - The `SECURITY_CONTACT` placeholder is left, for before the first release.
+
+### 12:46:59: `.html` and `.css` counted, and comment lines left out
+
+#### What changed
+
+- **Why.** A small website, all in one `.html` file, gave `0.0 KLOC · 0 files · 0 lines`: HTML and CSS are not
+  programming languages in Linguist. GitHub Pages now publishes the page.
+- **Requirements.** Requirement 21 now allows extensions to be included as well as excluded. Requirement 22 now counts
+  only lines that are not comments, in every code file. It was decided to recognise the comments of the common
+  languages through a table of comment styles; in a language the table does not know, comments are counted.
+- **Replaced.** That comments count, and that only programming languages are counted, both of
+  [the project set up from the template](#114028-the-project-set-up-from-the-template).
+- **Included extensions.** `.github/scripts/included-extensions.json` holds `.css` and `.html`, which
+  `update-extensions.js` adds to the list: 978 code extensions, up from 976.
+- **src/data/.** `extensions.json` moved here from `src/`, so that `src/` keeps to 7 files. `comments.json` is new: 9
+  comment styles, C (`//`, `/* */`), hash (`#`), double dash (`--`, `--[[ ]]`, `{- -}`), semicolon, percent,
+  apostrophe, ML (`(* *)`), CSS (`/* */`) and HTML (`<!-- -->`, `/* */`, `//`), and the extensions of each: 146 in
+  all, each a code extension and in one style only.
+- **count.js.** `extensionOf` finds a path's code extension; `countLines` blanks out the comments of its comment
+  style, keeping the line breaks, then counts the lines that are not blank. A line comment counts only where it starts
+  the line, so a line with code and a comment is a line of code.
+- **Tests.** 46, up from 38. Test 5 no longer holds a `#` line, now a comment. New: Tests 11 and 12 (`.html` and
+  `.css` counted), 13 to 15 (HTML, CSS and script comments in `.html`), 16 to 18 (`//`, `/* */` and `#` comments).
+  Tests 11 to 38 became 19 to 46.
+- **Checked.** All 46 tests passed; before `count.js` was changed, Tests 11 to 15 failed. Mutation testing of
+  `src/count.js` changed it at 21 places, and the tests failed for all 21. The CRAP score of every function is under
+  10, and no code is written twice. Against GitHub, `octocat/Spoon-Knife`, one `.html` and one `.css` file, gave
+  `0.0 KLOC · 2 files · 29 lines`, as a separate count of a clone did; `tj/commander.js` gave
+  `15.5 KLOC · 171 files · 15506 lines`, against 15525 by a rougher count with `grep` of lines that do not start with
+  `//`, `/*` or `*`. `check-rules.sh` passed.
+- **Documents.** `README.md`: what a line of code is, and the example. `MAINTAINER.md`: the first chapter (included
+  extensions, the new path), the files, the diagram, how a count works, and a new section "Comment styles".
+  `TESTS.md`: Tests 5 and 11 to 18, and the numbers of 19 to 46. `TERMINOLOGY.md`: code extension, excluded
+  extension, code file and line of code changed; included extension, comment style and comment added.
+  `DECISIONS.md`.
+
+#### Not done
+
+- Comments in languages outside `comments.json` are still counted, as decided.
+- A block marker inside a string, such as `"/*"`, is taken for a comment; strings are not parsed.
+- Python docstrings are strings, not comments, and are counted.
+- Accessibility was not looked at, and the page was not tried on a phone, nor in Firefox or Safari.
+- The `SECURITY_CONTACT` placeholder is left, for before the first release.

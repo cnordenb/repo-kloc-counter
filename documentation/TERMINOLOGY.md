@@ -14,10 +14,13 @@ repository - a public GitHub repository, named by its owner and its name, e.g. "
 link - what the user types to name a repository, e.g. "https://github.com/cnordenb/repo-kloc-counter/tree/master"
 valid link - a link to github.com or www.github.com holding an owner and a repository's name; anything else is not
 default branch - the branch GitHub shows first for a repository, asked for as HEAD
-code extension - a file ending of a programming language in GitHub Linguist's languages.yml, e.g. ".js"
-excluded extension - a code extension that is never counted, listed in excluded-extensions.json, e.g. ".md"
-code file - a file of the default branch whose name ends in a code extension that is not an excluded extension
-line of code - a line of a code file holding at least one character that is not whitespace
+code extension - a file ending counted as code, listed in src/data/extensions.json, e.g. ".js"
+included extension - a code extension that no programming language in Linguist's languages.yml has, e.g. ".html"
+excluded extension - a file ending of a programming language in languages.yml that is no code extension, e.g. ".md"
+code file - a file of the default branch whose name ends in a code extension
+comment style - how a code file marks text it ignores, e.g. "#" to the end of the line in ".py", listed in comments.json
+comment - text that the comment style of its code file marks as such, e.g. "# note" in a ".py" file
+line of code - a line of a code file holding at least one character that is neither whitespace nor in a comment
 KLOC - thousands of lines of code, shown with one decimal, e.g. "18.4 KLOC" for 18385 lines of code
 count - reading every code file of a repository and adding up its lines of code
 partial count - a count that missed code files, as GitHub cut its list of files short or a code file could not be read

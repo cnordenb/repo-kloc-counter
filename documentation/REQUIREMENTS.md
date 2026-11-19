@@ -29,8 +29,8 @@
 ## Counting
 20. Repo KLOC Counter will count the repository's default branch.
 21. Repo KLOC Counter will count only files whose extension belongs to a language of type `programming` in
-    GitHub Linguist's `languages.yml` unless arbitrarily excluded.
-22. Repo KLOC Counter will count as a line of code every line holding at least one character that is not whitespace.
+    GitHub Linguist's `languages.yml` unless arbitrarily excluded or included.
+22. Repo KLOC Counter will count as a line of code every non-comment line holding at least one character that is not whitespace.
 23. Repo KLOC Counter will retry once a file whose fetch fails.
 24. Repo KLOC Counter will leave out of the count a file whose retry fails.
 25. Repo KLOC Counter will count the files listed when GitHub cuts the repository's file list short.

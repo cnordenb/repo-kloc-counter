@@ -1,0 +1,64 @@
+[
+  {
+    "style": "C",
+    "line": ["//"],
+    "block": [["/*", "*/"]],
+    "extensions": [".c", ".h", ".cc", ".cpp", ".cxx", ".c++", ".hh", ".hpp", ".hxx", ".h++", ".inl", ".ino", ".cu",
+      ".cuh", ".cs", ".csx", ".java", ".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx", ".mts", ".cts", ".go", ".rs",
+      ".swift", ".kt", ".kts", ".scala", ".sc", ".dart", ".groovy", ".gvy", ".php", ".m", ".mm", ".sol",
+      ".zig", ".d", ".vala", ".hx", ".glsl", ".hlsl", ".frag", ".vert", ".sv", ".svh", ".fs", ".fsx", ".fsi", ".jsonnet",
+      ".libsonnet", ".gd", ".v", ".carbon", ".odin", ".c3", ".move", ".cairo", ".qml", ".as", ".bicep"]
+  },
+  {
+    "style": "hash",
+    "line": ["#"],
+    "block": [],
+    "extensions": [".py", ".pyw", ".pyi", ".pyx", ".rb", ".rake", ".gemspec", ".sh", ".bash", ".zsh", ".ksh", ".fish",
+      ".pl", ".pm", ".r", ".ps1", ".psm1", ".psd1", ".tcl", ".nim", ".nims", ".cr", ".ex", ".exs", ".jl", ".coffee",
+      ".awk", ".mk", ".mak", ".make", ".cmake", ".nix", ".tf", ".tfvars", ".hcl", ".raku", ".rakumod", ".star", ".bzl",
+      ".mojo", ".nu", ".elv", ".janet"]
+  },
+  {
+    "style": "double dash",
+    "line": ["--"],
+    "block": [["--[[", "]]"], ["{-", "-}"]],
+    "extensions": [".sql", ".lua", ".luau", ".hs", ".lhs", ".elm", ".ada", ".adb", ".ads", ".vhd", ".vhdl", ".purs",
+      ".agda", ".idr", ".plsql", ".pgsql"]
+  },
+  {
+    "style": "semicolon",
+    "line": [";"],
+    "block": [],
+    "extensions": [".clj", ".cljs", ".cljc", ".lisp", ".lsp", ".el", ".scm", ".rkt", ".asm", ".nasm", ".fnl"]
+  },
+  {
+    "style": "percent",
+    "line": ["%"],
+    "block": [],
+    "extensions": [".erl", ".hrl"]
+  },
+  {
+    "style": "apostrophe",
+    "line": ["'"],
+    "block": [],
+    "extensions": [".vb", ".vbs", ".bas", ".vba"]
+  },
+  {
+    "style": "ML",
+    "line": [],
+    "block": [["(*", "*)"]],
+    "extensions": [".ml", ".mli", ".sml", ".pas"]
+  },
+  {
+    "style": "CSS",
+    "line": [],
+    "block": [["/*", "*/"]],
+    "extensions": [".css"]
+  },
+  {
+    "style": "HTML",
+    "line": ["//"],
+    "block": [["<!--", "-->"], ["/*", "*/"]],
+    "extensions": [".html"]
+  }
+]

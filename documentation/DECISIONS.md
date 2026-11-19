@@ -64,18 +64,28 @@ an earlier one, the earlier one is named after it, with its own link.
 - **The code extensions.** Those of the programming languages in GitHub Linguist's `languages.yml`, in a file of
   their own.
   [2026-11-19 11:45:08](DEVLOG/DEVLOG1.md#114508-how-the-repository-is-read-and-shown-decided)
-- **A line of code is a line that is not blank.** Comments count; lines of only whitespace do not.
+- **A line of code is neither blank nor only a comment** (Requirement 22). Replaced: comments counted.
   [2026-11-19 11:40:28](DEVLOG/DEVLOG1.md#114028-the-project-set-up-from-the-template)
-- **Only code files are counted.** A file counts when its extension is that of a programming language.
+  [2026-11-19 12:46:59](DEVLOG/DEVLOG1.md#124659-html-and-css-counted-and-comment-lines-left-out)
+- **Comments of the common languages.** Recognised through the comment styles of `src/data/comments.json`; in other
+  languages, comments are counted.
+  [2026-11-19 12:46:59](DEVLOG/DEVLOG1.md#124659-html-and-css-counted-and-comment-lines-left-out)
+- **Only code files are counted.** A file counts when its extension is that of a programming language, or `.html` or
+  `.css`, the included extensions (Requirement 21). Replaced: programming languages only.
   [2026-11-19 11:40:28](DEVLOG/DEVLOG1.md#114028-the-project-set-up-from-the-template)
+  [2026-11-19 12:46:59](DEVLOG/DEVLOG1.md#124659-html-and-css-counted-and-comment-lines-left-out)
 - **The output.** The KLOC, the number of files counted and the exact number of lines.
   [2026-11-19 11:40:28](DEVLOG/DEVLOG1.md#114028-the-project-set-up-from-the-template)
 
 ## Code and files
 
-- **A snapshot of the code extensions.** `src/extensions.json`, remade by `npm run update-extensions` from Linguist,
-  less `.github/scripts/excluded-extensions.json`; not read from Linguist at each count.
+- **A snapshot of the code extensions.** `src/data/extensions.json`, remade by `npm run update-extensions` from
+  Linguist, plus `included-extensions.json` and less `excluded-extensions.json`, both in `.github/scripts/`; not read
+  from Linguist at each count.
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+  [2026-11-19 12:46:59](DEVLOG/DEVLOG1.md#124659-html-and-css-counted-and-comment-lines-left-out)
+- **Data in `src/data/`.** The JSON files the code reads, `extensions.json` and `comments.json`, keep `src/` to 7 files.
+  [2026-11-19 12:46:59](DEVLOG/DEVLOG1.md#124659-html-and-css-counted-and-comment-lines-left-out)
 - **No dependencies.** The code and the tests use only what browsers and Node.js 22 have (Rule 27).
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
 - **`index.html` in the main folder.** GitHub Pages serves the main folder of the default branch, with no workflow.
