@@ -1,6 +1,7 @@
-import { parseLink } from './link.js';
+import { parseLink, parseUser } from './link.js';
 import { countRepository } from './count.js';
-import { FRAME_MS, HELP, errorLine, progressLine, resultLines } from './output.js';
+import { listRepos } from './github.js';
+import { FRAME_MS, HELP, errorLine, progressLine, repoLines, resultLines } from './output.js';
 
 export function createSession({ fetch, onChange = () => {} }) {
   const session = { state: { lines: [], busy: false, history: [], cursor: 0 }, onChange };
@@ -20,6 +21,8 @@ export function createSession({ fetch, onChange = () => {} }) {
     if (text === '') return;
     remember(state, text);
     if (Object.hasOwn(commands, text)) return commands[text]();
+    const [word, ...words] = text.split(/\s+/);
+    if (word === 'ls') return list(session, fetch, words.join(' '));
     const repo = parseLink(text);
     if (repo === null) return show(session, errorLine('invalid'), 'error');
     await count(session, fetch, repo);
@@ -41,14 +44,31 @@ export function createSession({ fetch, onChange = () => {} }) {
   };
 }
 
-async function count(session, fetch, repo) {
+function count(session, fetch, repo) {
+  return whileBusy(session, async () => {
+    const progress = startProgress(session);
+    const outcome = await countRepository(fetch, repo, progress.update).then(resultLines, failed);
+    progress.stop();
+    return outcome;
+  });
+}
+
+function list(session, fetch, name) {
+  const user = parseUser(name);
+  if (user === null) return show(session, errorLine('lsUsage'), 'error');
+  return whileBusy(session, () => listRepos(fetch, user).then(repoLines, failed));
+}
+
+async function whileBusy(session, work) {
   session.state.busy = true;
-  const progress = startProgress(session);
-  const outcome = await countRepository(fetch, repo, progress.update)
-    .then(resultLines, (error) => [errorLine(error.kind)]);
-  progress.stop();
+  session.onChange();
+  const outcome = await work();
   session.state.busy = false;
   outcome.forEach((line) => show(session, line, line.startsWith('error') ? 'error' : 'output'));
+}
+
+function failed(error) {
+  return [errorLine(error.kind)];
 }
 
 function startProgress(session) {

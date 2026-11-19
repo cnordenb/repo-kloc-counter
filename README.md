@@ -13,7 +13,7 @@ A static, client-side web app with a command-line interface that counts the KLOC
 ## Usage
 
 Open [cnordenb.github.io/repo-kloc-counter](https://cnordenb.github.io/repo-kloc-counter/), paste the link of a public
-GitHub repository at the prompt and press Enter:
+GitHub repository at the prompt, or just its owner and name such as `tj/commander.js`, and press Enter:
 
 ```
 > https://github.com/tj/commander.js
@@ -23,7 +23,8 @@ GitHub repository at the prompt and press Enter:
 A line of code is a line that is neither blank nor only a comment, in an `.html` or `.css` file or a file whose
 extension belongs to a programming language in
 [GitHub Linguist](https://github.com/github-linguist/linguist/blob/main/lib/linguist/languages.yml). Comments are
-recognised in the common languages; in the others they are counted. Type `help` for
+recognised in the common languages; in the others they are counted. `ls cnordenb` lists the public repositories of
+a user, forks left out. Type `help` for
 the commands. Without a token, GitHub allows 60 counts an hour from one address.
 
 ## Contributing

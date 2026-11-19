@@ -7,6 +7,8 @@ export const GREETING = 'Repo KLOC Counter. Paste a link to a public GitHub repo
 export const HELP = [
   'https://github.com/{owner}/{repo}  count the lines of code of that public repository',
   '                                   (http://, no scheme and www. work too; the rest of the link is ignored)',
+  '{owner}/{repo}                     the same, such as cnordenb/repo-kloc-counter',
+  'ls {user}                          list the public repositories of a GitHub user, forks left out',
   'help                               show this help',
   'clear                              clear the terminal',
   'up and down arrows                 go through earlier input',
@@ -16,11 +18,17 @@ const ERRORS = {
   invalid: 'error: not a valid link',
   rateLimit: "error: GitHub's hourly rate limit exceeded",
   notPublic: 'error: not a public repository, or no such repository',
+  noUser: 'error: no such GitHub user',
+  lsUsage: 'error: ls takes one GitHub user, such as: ls cnordenb',
   unreachable: 'error: GitHub could not be reached',
 };
 
 export function errorLine(kind) {
   return ERRORS[kind] ?? ERRORS.unreachable;
+}
+
+export function repoLines(names) {
+  return names.length > 0 ? names : ['no public repositories'];
 }
 
 export function progressLine(frame, done, total) {

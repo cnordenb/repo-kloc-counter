@@ -12,7 +12,7 @@ success criterion - a numbered WCAG 2.2 statement at level A or AA that the inte
 human verification - a person's check that a success criterion holds, needed where no test can check it in full
 repository - a public GitHub repository, named by its owner and its name, e.g. "cnordenb/repo-kloc-counter"
 link - what the user types to name a repository, e.g. "https://github.com/cnordenb/repo-kloc-counter/tree/master"
-valid link - a link to github.com or www.github.com holding an owner and a repository's name; anything else is not
+valid link - a link to github.com or www.github.com holding an owner and a repository's name, or that owner/name alone
 default branch - the branch GitHub shows first for a repository, asked for as HEAD
 code extension - a file ending counted as code, listed in src/data/extensions.json, e.g. ".js"
 included extension - a code extension that no programming language in Linguist's languages.yml has, e.g. ".html"
@@ -26,8 +26,8 @@ count - reading every code file of a repository and adding up its lines of code
 partial count - a count that missed code files, as GitHub cut its list of files short or a code file could not be read
 terminal - the whole page: lines of output above one line where the user types
 prompt - the line at the bottom of the terminal where the user types a link or a command, marked ">"
-command - a word typed at the prompt that is not a link: "help" or "clear"
+command - a word typed at the prompt that is not a link: "help", "clear" or "ls"
 history - the input given at the prompt so far, gone through with the up and down arrows
 progress line - the line shown during a count, e.g. "/ counting lines... (3/12 files)", its first character turning
 result - the line after a count, e.g. "18.4 KLOC · 171 files · 18385 lines", with a warning below it if partial count
-session - the state of the terminal in session.js: its lines, its history, and whether a count is running
+session - the state of the terminal in session.js: its lines, its history, and whether a count or "ls" is running

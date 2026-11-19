@@ -34,3 +34,11 @@ test('Test 25: a link with another host is not a valid link', () => {
 test('Test 26: a link without both owner and repository is not a valid link', () => {
   assert.equal(parseLink('https://github.com/cnordenb'), null);
 });
+
+test('Test 27: owner/repository alone is accepted', () => {
+  assert.deepEqual(parseLink('cnordenb/aoe2vils.net'), { owner: 'cnordenb', repo: 'aoe2vils.net' });
+});
+
+test('Test 28: another host without a scheme is not a valid link', () => {
+  assert.equal(parseLink('gitlab.com/cnordenb/repo-kloc-counter'), null);
+});

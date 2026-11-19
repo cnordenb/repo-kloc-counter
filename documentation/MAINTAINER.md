@@ -6,6 +6,7 @@
    - [Diagram](#diagram)
    - [How a count works](#how-a-count-works)
    - [Comment styles](#comment-styles)
+   - [The ls command](#the-ls-command)
    - [Trying the page on your computer](#trying-the-page-on-your-computer)
    - [Tests](#tests)
    - [Rules for changing the code](#rules-for-changing-the-code)
@@ -62,9 +63,9 @@ functions in `src/`, which the tests call directly with a fake GitHub, so they n
 | `index.html` | The page: the terminal's layout and colours. GitHub Pages serves it. |
 | `package.json`, `package-lock.json` | Tell npm how to run the tests. There are no dependencies; install with `npm ci`, never `npm install` (Rule 27). |
 | `src/main.js` | Draws the terminal in the page and passes the keys Enter, up and down to the session. |
-| `src/session.js` | The terminal itself: what was shown, the history of input, the commands, and a count with its progress line. |
+| `src/session.js` | The terminal itself: what was shown, the history of input, the commands, `ls`, and a count with its progress line. |
 | `src/link.js` | Turns what the user typed into an owner and a repository, or into "not a valid link". |
-| `src/github.js` | Asks GitHub for the list of files, and reads a file, trying twice. |
+| `src/github.js` | Asks GitHub for the list of files of a repository, or the repositories of a user, and reads a file, trying twice. |
 | `src/count.js` | Picks the code files and counts their lines of code: not blank, and not only comment. |
 | `src/output.js` | Every text the terminal shows: help, errors, the progress line and the result. |
 | `src/data/extensions.json` | The extensions of code files, made by `update-extensions.js`. Do not edit it by hand. |
@@ -80,6 +81,7 @@ flowchart LR
   session --> link[link.js]
   session --> output[output.js]
   session --> count[count.js]
+  session --> github
   count --> ext[extensions.json]
   count --> comments[comments.json]
   count --> github[github.js]
@@ -88,7 +90,9 @@ flowchart LR
 ### How a count works
 
 1. The user types `github.com/tj/commander.js/tree/master` and presses Enter. `parseLink` in `link.js` turns it into
-   `{ owner: 'tj', repo: 'commander.js' }`, or `null`, which shows `error: not a valid link`.
+   `{ owner: 'tj', repo: 'commander.js' }`, or `null`, which shows `error: not a valid link`. Without a scheme, a
+   first part with no dot is an owner, since GitHub names of users hold no dots: `tj/commander.js` becomes
+   `github.com/tj/commander.js`, while `gitlab.com/a/b` stays a link to another host.
 2. `listFiles` in `github.js` asks GitHub's API once for every file of the default branch, called `HEAD`:
    `https://api.github.com/repos/tj/commander.js/git/trees/HEAD?recursive=1`. That is the only call that counts
    against GitHub's limit of 60 calls an hour without a token. A 404 means private or missing; a missing quota,
@@ -115,6 +119,15 @@ it. For example, the hash style is `"line": ["#"], "block": []` and lists `.py`,
   extensions to the style it uses, or add a style. Each extension must be in `extensions.json` and in one style only.
 - A block marker is found anywhere, even inside a string, so `"/*"` in a string can hide the lines after it, up to
   the next `*/`. This is rare, and accepted to keep the counting simple.
+
+### The ls command
+
+`ls cnordenb` lists the public repositories of a GitHub user, or of an organisation, one `owner/name` a line, so that
+any line can be typed back to count it. `listRepos` in `github.js` asks
+`https://api.github.com/users/cnordenb/repos?type=owner&sort=full_name&per_page=100&page=1`, then page 2 and on while
+a page holds 100, and leaves out every repository whose `fork` is true. Each page is one call against the limit of 60
+an hour. A 404 gives `error: no such GitHub user`. While it waits, `whileBusy` in `session.js` marks the terminal
+busy, as during a count, so that the prompt waits too.
 
 ### Trying the page on your computer
 

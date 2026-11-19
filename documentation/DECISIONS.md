@@ -22,6 +22,12 @@ an earlier one, the earlier one is named after it, with its own link.
 
 ## Requirements, and how they are read
 
+- **The ls command.** `ls {user}` lists a user's or organisation's public repositories, forks left out, one
+  `owner/name` a line in the order of their names; every page of 100 is read.
+  [2026-11-19 13:13:59](DEVLOG/DEVLOG1.md#131359-the-ls-command-lists-a-users-repositories)
+- **Errors of ls.** `error: no such GitHub user` for a 404, `no public repositories` for none, and how to use it for
+  `ls` without one name of letters, digits and hyphens.
+  [2026-11-19 13:13:59](DEVLOG/DEVLOG1.md#131359-the-ls-command-lists-a-users-repositories)
 - **The default branch is `HEAD`.** The file list is asked for at `git/trees/HEAD?recursive=1`: one API call a count.
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
 - **The excluded extensions.** Those Linguist gives both to a programming language and to prose: `.asc`, `.fr`, `.md`,
@@ -39,6 +45,9 @@ an earlier one, the earlier one is named after it, with its own link.
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
 - **Accessibility later.** Accessibility is left for later; `.github/ACCESSIBILITY.md` stays as the template left it.
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **`{owner}/{repo}` alone.** Without a scheme, a first part with no dot is an owner and `github.com/` goes before it;
+  a first part with a dot is a host. With a scheme, nothing goes before it.
+  [2026-11-19 13:00:41](DEVLOG/DEVLOG1.md#130041-ownerrepo-alone-accepted)
 - **Links without a scheme.** `github.com/...`, `http://` and `www.github.com` are accepted; other hosts are not.
   [2026-11-19 11:50:52](DEVLOG/DEVLOG1.md#115052-packagejson-added-and-the-progress-line-decided)
 - **A file that fails to fetch.** Retried once, then left out, with the warning of a partial count.
@@ -79,6 +88,11 @@ an earlier one, the earlier one is named after it, with its own link.
 
 ## Code and files
 
+- **One place for GitHub's errors.** `parsed` in `github.js` turns every answer that is not ok into a `GitHubError`.
+  [2026-11-19 13:13:59](DEVLOG/DEVLOG1.md#131359-the-ls-command-lists-a-users-repositories)
+- **One place for being busy.** `whileBusy` in `session.js` marks the terminal busy, tells the page, and shows the
+  lines after.
+  [2026-11-19 13:13:59](DEVLOG/DEVLOG1.md#131359-the-ls-command-lists-a-users-repositories)
 - **A snapshot of the code extensions.** `src/data/extensions.json`, remade by `npm run update-extensions` from
   Linguist, plus `included-extensions.json` and less `excluded-extensions.json`, both in `.github/scripts/`; not read
   from Linguist at each count.

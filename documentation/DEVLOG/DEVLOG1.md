@@ -263,3 +263,72 @@ Part 1 of the development log. The decisions made in the log are listed in [DECI
 - Python docstrings are strings, not comments, and are counted.
 - Accessibility was not looked at, and the page was not tried on a phone, nor in Firefox or Safari.
 - The `SECURITY_CONTACT` placeholder is left, for before the first release.
+
+### 13:00:41: `{owner}/{repo}` alone accepted
+
+#### What changed
+
+- **Why.** Typing `cnordenb/aoe2vils.net` gave `error: not a valid link`; it now counts that repository, as if
+  `https://github.com/` came before it. Counting all the repositories of a user was planned and then dropped.
+- **link.js.** `parseLink` puts `github.com/` before the input when it has no scheme and its first part, up to the
+  first `/`, holds no dot. GitHub names of users hold no dots, so a first part with a dot is a host: `gitlab.com/a/b`
+  stays not a valid link (Requirement 18). With a scheme, nothing is put before it, so `https://cnordenb/x` is a link
+  to another host, and not valid.
+- **output.js.** `help` shows `{owner}/{repo}` among the accepted input.
+- **Tests.** 48, up from 46: Test 27 (`cnordenb/aoe2vils.net` accepted) and Test 28 (`gitlab.com/...` without a scheme
+  not valid), in `tests/links.test.js`. Tests 27 to 46 became 29 to 48.
+- **Checked.** All 48 tests passed; Test 27 failed before `link.js` was changed. Mutation testing of `src/link.js`
+  changed it at 5 places, and the tests failed for all 5. `parseLink` has a CRAP score of 5. `check-rules.sh` passed.
+  In a headless Brave against GitHub, `cnordenb/aoe2vils.net` gave `3.7 KLOC · 12 files · 3656 lines`,
+  `octocat/Spoon-Knife` gave `0.0 KLOC · 2 files · 29 lines`, and `gitlab.com/a/b` gave `error: not a valid link`.
+- **Documents.** `README.md`: usage. `MAINTAINER.md`: how a count works, step 1. `TESTS.md`: Tests 27 and 28, and the
+  numbers of 29 to 48. `TERMINOLOGY.md`: valid link. `DECISIONS.md`.
+
+#### Not done
+
+- `REQUIREMENTS.md` has no requirement for `{owner}/{repo}` alone yet, so Test 27 names none; see Question 1.
+
+#### Questions
+
+1. **The requirement.** Proposal, for the chief developer to add under "Accepted links": "Repo KLOC Counter will
+   accept `{owner}/{repo}` alone, as if `https://github.com/` came before it."
+
+### 13:13:59: the `ls` command lists a user's repositories
+
+#### What changed
+
+- **ls.** `ls {user}` lists the public repositories of a GitHub user or organisation, forks left out, one
+  `owner/name` a line, in the order of their names, so that a line can be typed back to count it. A user GitHub does
+  not know gives `error: no such GitHub user`, one without public repositories `no public repositories`, and `ls`
+  without one user `error: ls takes one GitHub user, such as: ls cnordenb`.
+- **github.js.** `listRepos` reads `users/{user}/repos?type=owner&sort=full_name&per_page=100`, page after page while
+  a page holds 100, one API call each. `parsed` now holds what `listFiles` and `listRepos` share: an answer that is not
+  ok becomes a `GitHubError`, whose 404 kind each caller names. `API` is now `https://api.github.com`.
+- **link.js.** `parseUser` accepts a name of letters, digits and hyphens; GitHub's 404 answers the rest.
+- **session.js.** `whileBusy` holds what a count and `ls` share: the terminal is busy while they wait, then shows
+  their lines.
+- **Bug.** While `ls` waited, the prompt stayed open, as nothing told the page that the terminal was busy; input typed
+  then was lost without a word. It was found by typing commands one after another in a headless Brave. `whileBusy` now
+  tells the page as soon as it marks the terminal busy.
+- **output.js.** `help` lists `ls {user}`; the new errors and `no public repositories` are there.
+- **Tests.** 55, up from 48: Tests 47 to 52 for `ls` and Test 53, a regression test for the bug, in
+  `tests/terminal.test.js`; `fakeGitHub` answers a user's repositories, 100 a page. Tests 47 and 48 became 54 and 55.
+- **Checked.** All 55 tests passed; Tests 47 to 52 failed before `ls` was written, and Test 53 failed with the fix
+  taken out, which was then put back. Mutation testing: all 14 mutants of `src/github.js` and all 5 of `src/link.js`
+  were caught; `src/session.js` and `src/output.js` keep the 5 and 1 survivors of before, none new. The CRAP score of
+  every function is under 10, and no code is written twice. In a headless Brave against GitHub, `ls octocat` gave 6
+  repositories, GitHub's 8 less its 2 forks; `ls no-such-user-xq-77213` gave `error: no such GitHub user`; and a count
+  typed straight after `ls` ran. `users/github/repos` was seen to answer for an organisation. `check-rules.sh` passed.
+- **Documents.** `README.md`: usage. `MAINTAINER.md`: the files, the diagram, and a new section "The ls command".
+  `TESTS.md`: Tests 47 to 53, and the numbers of 54 and 55. `TERMINOLOGY.md`: command and session. `DECISIONS.md`.
+
+#### Not done
+
+- `REQUIREMENTS.md` has no requirement for `ls` yet, so Tests 47 to 52 name none; see Question 1.
+- A user with more than 100 repositories was tried only against `fakeGitHub`.
+
+#### Questions
+
+1. **The requirements.** Proposal, for the chief developer to add: "The command `ls {user}` will list the public
+   repositories of that GitHub user, one `{owner}/{repo}` a line." "The command `ls` will leave forks out." "The
+   command `ls` will give the error "no such GitHub user" for a user GitHub does not show."
