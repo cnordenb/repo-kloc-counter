@@ -1,3 +1,222 @@
 # Development log, part 1
 
 Part 1 of the development log. The decisions made in the log are listed in [DECISIONS.md](../DECISIONS.md).
+
+- [2026-11-19](#2026-11-19)
+
+## 2026-11-19
+
+### 11:40:28: the project set up from the template
+
+#### What changed
+
+- **Purpose.** Repo KLOC Counter is a static web page, JavaScript only and run in the browser, whose interface is a
+  command line. Given the link of a public GitHub repository, such as `https://github.com/cnordenb/repo-kloc-counter`,
+  it shows the repository's KLOC. The errors it must report are: not a valid link, GitHub's hourly rate limit
+  exceeded, and not a public repository.
+- **Placeholders.** `PROJECT_NAME` became Repo KLOC Counter, `PROJECT_DESCRIPTION` the sentence in `README.md`
+  and `AGENTS.md`, `GITHUB_OWNER` cnordenb, `REPO_NAME` repo-kloc-counter, `CHIEF_DEVELOPER` Carl
+  Nordenbrink and `AI_MODEL` Claude Opus 5.5, in `README.md`, `AGENTS.md`, `RULES.md`, `MAINTAINER.md`,
+  `TESTS.md` and the issue forms. `LICENSE` already held the year 2026 and the name.
+- **README.md.** The template's note was deleted.
+- **Counting.** It was settled how the KLOC is counted: a line of code is a line with something other than
+  whitespace, comments included; only files whose extension is that of a programming language are counted; the
+  output gives the KLOC, the number of files counted and the exact number of lines.
+- **Tests.** None yet: there is no code.
+- **Checked.** `bash .github/scripts/check-rules.sh` was run; it passed and listed the placeholders left.
+- **Documents.** `README.md`, `AGENTS.md`, `RULES.md`, `MAINTAINER.md`, `TESTS.md`, the issue forms, `DECISIONS.md`.
+
+#### Not done
+
+- `REQUIREMENTS.md` is still to be written by the chief developer (Rule 2); the counting settled above belongs there.
+- Placeholders left: `STACK`, `TEST_COMMAND`, `LANGUAGE`, `USAGE`, `MAINTENANCE_TASK`,
+  `MAINTENANCE_TASK_ANCHOR`, `MAINTENANCE_STEPS`, `CODE_OVERVIEW` and `SECURITY_CONTACT`.
+- No code was written.
+
+#### Questions
+
+1. **How GitHub is read.** Proposal: one call to `api.github.com/repos/{owner}/{repo}` for the default branch and
+   whether the repository is public, one to the Git trees API with `recursive=1` for the list of files, and each
+   counted file fetched from `raw.githubusercontent.com`, which is not counted against the API's limit of 60 calls an
+   hour. A count would then cost 2 API calls. Should the user also be able to give a token, for 5000 calls an hour?
+2. **Accepted links.** Proposal: `https://github.com/{owner}/{repo}` only, with an optional trailing `/` or `.git`;
+   links to a branch, a folder or a file (`/tree/...`, `/blob/...`) are not valid links. The default branch is counted.
+3. **The command line.** Proposal: a page that looks like a terminal, with a prompt where a link is typed and Enter
+   pressed, and the commands `help` and `clear`, with earlier input recalled by the arrow keys.
+4. **Large repositories.** GitHub cuts the file list short above 100 000 files. Proposal: count what is listed and
+   say that the count is partial. Should a progress line show while files are fetched?
+5. **Not public.** GitHub answers 404 both for a private repository and for one that does not exist. Proposal: one
+   error, "not a public repository, or no such repository".
+6. **The stack.** Proposal: plain JavaScript modules with no dependencies and no build step, tested with Node's own
+   `node --test`, published with GitHub Pages from this repository.
+7. **The KLOC shown.** Proposal: two decimals, such as `12.35 KLOC`, then the files and the lines.
+8. **The list of extensions.** Proposal: the programming languages of GitHub Linguist, kept in one file of its own.
+
+### 11:45:08: how the repository is read and shown, decided
+
+#### What changed
+
+- **Answers.** Of the questions of 11:40:28, in [the project set up from the template](#114028-the-project-set-up-from-the-template):
+  - no token: the API is called without one, within its 60 calls an hour (1);
+  - any link into a repository is accepted, and everything after `{owner}/{repo}` is stripped, so that the link
+    becomes the link of the repository's root; the default branch is counted (2);
+  - the command line is a page that looks like a terminal, with `help`, `clear` and earlier input recalled by the
+    arrow keys (3);
+  - when GitHub cuts the file list short, what is listed is counted and a warning says the count is partial (4);
+  - a 404 gives one error, "not a public repository, or no such repository" (5);
+  - plain JavaScript modules, no build step, tested with `node --test` on Node 22 and published with GitHub Pages;
+    packages are installed with `npm ci` only, never `npm install` (6, 8);
+  - the KLOC is shown with one decimal (7);
+  - the code extensions are those of the programming languages in GitHub Linguist's `languages.yml`, kept in a file
+    of their own (8).
+- **Documents.** `DECISIONS.md`.
+
+#### Not done
+
+- `REQUIREMENTS.md` is still to be written by the chief developer (Rule 2); these answers belong there.
+- No code was written.
+
+#### Questions
+
+1. **`npm ci` without dependencies.** `npm ci` needs a `package.json` and a `package-lock.json`, even with no
+   dependencies. Proposal: both are committed, with no dependencies, so that CI runs `npm ci` then `npm test`.
+2. **Links without a scheme.** Should `github.com/{owner}/{repo}` and `www.github.com/...` be accepted too?
+   Proposal: yes, and `http://`; any other host is not a valid link.
+3. **Files that fail to fetch.** Proposal: a file that cannot be fetched after one retry is left out, and the warning
+   of a partial count is shown, as when the list is cut short.
+4. **Progress.** Proposal: one line that updates while files are fetched, such as `fetched 120 of 214 files`.
+5. **No code files.** Proposal: a repository with no code files gives `0.0 KLOC · 0 files · 0 lines`, not an error.
+
+### 11:50:52: `package.json` added, and the progress line decided
+
+#### What changed
+
+- **Answers.** Of the questions of 11:45:08, in
+  [how the repository is read and shown, decided](#114508-how-the-repository-is-read-and-shown-decided):
+  - `package.json` and `package-lock.json` are committed with no dependencies, so that `npm ci` works (1);
+  - links without a scheme, with `http://` and with `www.github.com` are accepted; any other host is not a valid
+    link (2);
+  - a file that cannot be fetched after one retry is left out, and the warning of a partial count is shown (3);
+  - while files are read, one line shows `/ counting lines... (done/total files)`, such as `(3/12 files)`: the first
+    character turns through `/`, `-`, `\`, `|` and round again, one step every 300 ms; done is the number of files
+    read, total the number of files to read (4);
+  - a repository with no code files gives `0.0 KLOC · 0 files · 0 lines`, not an error (5).
+- **package.json.** Private, `"type": "module"`, Node 22 or later, and `npm test` runs `node --test`.
+- **package-lock.json.** Written by hand for no dependencies, lockfile version 3, as `npm install` is not used.
+- **.gitignore.** `node_modules/` added.
+- **Checked.** `npm ci` ran on Node 26.13.0 and npm 10.2.3 and installed nothing, as there is nothing to install.
+  `bash .github/scripts/check-rules.sh` passed.
+- **Documents.** `DECISIONS.md`.
+
+#### Not done
+
+- `REQUIREMENTS.md` is still to be written by the chief developer (Rule 2); these answers belong there.
+- `checks.yml` does not yet run `npm ci` and `npm test`, and the stack and test command placeholders are left: both
+  wait for the first code.
+- No code was written.
+
+#### Questions
+
+1. **Room in the main folder.** It now holds 8 files, the most Rule 14 allows. Proposal: the page and its scripts go
+   in `site/`, the tests in `tests/`, and GitHub Pages publishes `site/` through a workflow.
+
+### 12:14:26: the terminal counts a repository's lines of code
+
+#### What changed
+
+- **Answers.** Of the question of 11:50:52, in
+  [`package.json` added, and the progress line decided](#115052-packagejson-added-and-the-progress-line-decided):
+  `index.html` stays in the main folder, so that GitHub Pages serves the main folder of the default branch with no
+  workflow of its own, and Rule 14 is to allow it (1). Of the choices put before the code was written: the code
+  extensions are a snapshot in `src/extensions.json`, remade by a script, not read from Linguist at each count;
+  extensions that Linguist also gives to prose are excluded, as Requirement 21 now allows; there are no dependencies,
+  as `npm install` is forbidden (Rule 27); accessibility is left for later; the result is
+  `12.3 KLOC · 214 files · 12347 lines`, with no thousands separator; the error for the rate limit is the text of
+  Requirement 38 alone; an empty repository gives `0.0 KLOC · 0 files · 0 lines`, and input that is neither a link
+  nor a command gives `error: not a valid link`; the 300 ms of Requirement 28 is a 300 ms interval, tested with
+  mocked timers.
+- **index.html.** The page: an output area above a prompt marked `>`, in a terminal's colours, which loads
+  `src/main.js` as a module.
+- **src/.** `main.js` draws the terminal and passes Enter and the up and down arrows to the session in `session.js`,
+  which holds the lines, the history and the commands `help` and `clear`, and runs a count with its progress line.
+  `link.js` turns a link into owner and repository. `github.js` asks GitHub for the file list of `HEAD`, the default
+  branch, in one API call, and reads each file from `raw.githubusercontent.com`, which the limit of 60 calls an hour
+  does not cover, trying twice. `count.js` keeps the code files and counts their lines of code, eight files at a time.
+  `output.js` holds every text the terminal shows.
+- **Code extensions.** `.github/scripts/update-extensions.js`, run as `npm run update-extensions`, writes the 982
+  extensions of Linguist's 573 programming languages, less the excluded ones, to `src/extensions.json`: 976 now.
+  `.github/scripts/excluded-extensions.json` excludes `.asc`, `.fr`, `.md`, `.nb`, `.ncl` and `.scd`, the 6
+  extensions that Linguist gives both to a programming language and to prose. 61 extensions are shared with data or
+  markup too, among them `.ts` and `.rs`; those are counted.
+- **Rules.** `check-rules.sh` now measures `.js` and `.html` files as code. `checks.yml` installs Node.js 22 and runs
+  `npm ci && npm test`.
+- **Tests.** 36, up from 0: Tests 1 to 10 in `tests/counting.test.js`, 11 to 18 in `tests/links.test.js` and 19 to
+  36 in `tests/terminal.test.js`, all against `fakeGitHub` in `tests/fake-github.js`. Requirements 1, 2, 3, 5 and 6
+  have no test: they are about the page in a browser and its publishing, and are checked by hand.
+- **Checked.** All 36 tests passed. Mutation testing changed the code at 60 places; the tests failed for 53 of them.
+  Of the 6 left, 3 do not change behaviour (`??` made `||`, and a start value that is always overwritten), and 3
+  change what no requirement covers: input during a count, and the numbers on the progress line before GitHub's list
+  arrives; Rule 25 allows no test for them. One place, in `main.js`, is not run by the tests. The CRAP score of every
+  function is under 10, and no code is written twice. The page was run in a headless Brave against GitHub: `help`, a
+  `gitlab.com` link, `octocat/Hello-World` (no code files), a missing repository and the arrows gave what the
+  requirements say, and `tj/commander.js` gave `18.4 KLOC · 171 files · 18385 lines`, the same number of lines as a
+  count of a clone of it with `grep`.
+- **Documents.** `README.md`: usage and the language badge. `AGENTS.md`: stack and test command. `MAINTAINER.md`:
+  first chapter "Update the list of code extensions", the files, a diagram, how a count works, trying the page, the
+  tests. `TESTS.md`: Tests 1 to 36. `TERMINOLOGY.md`: repository, link, valid link, default branch, code extension,
+  excluded extension, code file, line of code, KLOC, count, partial count, terminal, prompt, command, history,
+  progress line, result, session. `DECISIONS.md`.
+
+#### Not done
+
+- `check-rules.sh` fails Rule 14: the main folder holds 9 files, and `RULES.md` as it is on disk still allows 8.
+- GitHub Pages is not turned on; the page is not published.
+- No test of a rule, such as Rule 10 or Rule 11, was written; see Question 1.
+- Accessibility was not looked at: `.github/ACCESSIBILITY.md` is not filled in.
+- The page was not tried on a phone, nor in Firefox or Safari, which need versions from 2025 or later for the JSON
+  import in `count.js`.
+- An empty repository was not tried against the real GitHub; its 409 answer is taken from GitHub's documentation.
+- The `SECURITY_CONTACT` placeholder is left, for before the first release.
+
+#### Questions
+
+1. **Tests of rules.** Rule 5 allows a test for "rule compliance"; Rule 25 allows a test only for a requirement or a
+   bug found before. Tests of Rule 10 (no comments) and Rule 11 (no function over 60 lines) would need such tests.
+   Proposal: Rule 25 is the stricter, so none are written, and the tools of `ub-mode` check what they can.
+
+### 12:21:50: Rules 10 and 11 tested, and standard files outside Rule 14
+
+#### What changed
+
+- **Answers.** Of the question of 12:14:26, in
+  [the terminal counts a repository's lines of code](#121426-the-terminal-counts-a-repositorys-lines-of-code): Rule 25
+  now allows a test to cover a rule, so Rules 10 and 11 are tested (1).
+- **Rules.** Rule 14 now leaves standard files, such as `CLAUDE.md`, `README.md` and `package.json`, out of the count.
+  Rule 25 now reads "a requirement/rule".
+- **Correction.** The section of 12:14:26 gave Rule 14 as failing under Not done. That came from reading only the
+  first line of Rule 14, whose second line already left standard files out; the main folder keeps to the rule.
+- **check-rules.sh.** `standard_files` names the standard files, which `check_folders` leaves out of every folder's
+  count: `.gitattributes`, `.gitignore`, `AGENTS.md`, `CLAUDE.md`, `LICENSE`, `README.md`, `package.json`,
+  `package-lock.json`, and the files GitHub looks for by name, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `FUNDING.yml`,
+  `PULL_REQUEST_TEMPLATE.md`, `SECURITY.md`, and `SKILL.md`. The main folder now counts 1 file, `index.html`.
+- **Rule 10.** Test 37 found comments in `.github/FUNDING.yml`, left from the template: a heading line and one
+  "Replace with ..." after each key. They were taken out; the keys stay, empty, so no funding is shown.
+- **Rule 11.** Test 38 found `createSession` in `src/session.js` at 62 lines of code. The count and its progress line
+  were moved out of it, into `count` and `startProgress`; the terminal works as before.
+- **Tests.** 38, up from 36: Test 37 (no comments) and Test 38 (no function over 60 lines of code), in
+  `tests/verify-rules.test.js`, named so that Node, which runs the test files in the order of their names, runs it last.
+  Both take the code files from `code_pattern` in `check-rules.sh`.
+- **Checked.** All 38 tests passed. Before the fixes, Test 37 failed naming the 14 lines of `FUNDING.yml`, and Test 38
+  failed naming `src/session.js:5: 62 lines`. A `//` comment added to `src/link.js` made Test 37 fail naming
+  `src/link.js:10`; it was taken out again. Mutation testing of `src/session.js` left the same 5 mutants as before.
+  The CRAP score of every function is under 10, and no code is written twice. `check-rules.sh` passed; with 8 more
+  files put in the main folder for a moment, it failed Rule 14 at 9 files.
+- **Documents.** `TESTS.md`: Tests 37 and 38, under maintainability. `MAINTAINER.md`: the rule tests and what to do
+  when they fail, and standard files in the rules. `DECISIONS.md`.
+
+#### Not done
+
+- GitHub Pages is not turned on; the page is not published.
+- Accessibility was not looked at.
+- The page was not tried on a phone, nor in Firefox or Safari.
+- The `SECURITY_CONTACT` placeholder is left, for before the first release.

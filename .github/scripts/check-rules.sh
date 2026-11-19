@@ -1,5 +1,7 @@
 exempt_folders="documentation/DEVLOG"
-code_pattern='\.(sh|ya?ml)$'
+standard_files=".gitattributes .gitignore AGENTS.md CLAUDE.md LICENSE README.md package.json package-lock.json
+  CODE_OF_CONDUCT.md CONTRIBUTING.md FUNDING.yml PULL_REQUEST_TEMPLATE.md SECURITY.md SKILL.md"
+code_pattern='\.(sh|ya?ml|js|html)$'
 
 errors=0
 template="${TEMPLATE:-false}"
@@ -46,12 +48,15 @@ check_placeholders() {
 
 check_folders() {
   local crowded
-  crowded="$(printf '%s\n' "$all_files" | grep -vE "^(${exempt_folders// /|})/" | "$awk_bin" '
+  crowded="$(printf '%s\n' "$all_files" | grep -vE "^(${exempt_folders// /|})/" \
+    | "$awk_bin" -v standard="$standard_files" '
+    BEGIN { split(standard, names, /[[:space:]]+/); for (i in names) skip[names[i]] = 1 }
+    { f = $0; sub(/.*\//, "", f); if (f in skip) next }
     { d = $0; if (sub(/\/[^\/]+$/, "", d) == 0) d = "."; n[d]++ }
     END { for (d in n) if (n[d] > (d == "." ? 8 : 7)) print (d == "." ? "the main folder" : d) ": " n[d] " files" }
   ' | sort)"
   [ -z "$crowded" ] && return 0
-  fail "Folders with too many files, 7 at most and 8 in the main folder (Rule 14):"
+  fail "Folders with too many files, 7 at most and 8 in the main folder, standard files aside (Rule 14):"
   printf '%s\n' "$crowded" | indent
 }
 

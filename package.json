@@ -1,0 +1,15 @@
+{
+  "name": "repo-kloc-counter",
+  "version": "1.0.0",
+  "description": "A static, client-side web app with a command-line interface that counts the KLOC of a public GitHub repository.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test",
+    "update-extensions": "node .github/scripts/update-extensions.js"
+  }
+}

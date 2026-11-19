@@ -1,9 +1,10 @@
 # Instructions for AI agents
 
-{{PROJECT_NAME}}: {{PROJECT_DESCRIPTION}}
+Repo KLOC Counter: A static, client-side web app with a command-line interface that counts the KLOC (thousands of lines of code) of a public GitHub repository from its link.
 
-- Stack: {{STACK}}
-- Run the tests: `{{TEST_COMMAND}}`
+- Stack: plain JavaScript modules and one HTML page, no dependencies and no build step; Node.js 22 or newer with its
+  own test runner, `node --test`; published with GitHub Pages
+- Run the tests: `npm ci && npm test` (never `npm install`, Rule 27)
 - Check the rules a script can check: `bash .github/scripts/check-rules.sh` (Git Bash on Windows)
 
 ## Read before changing anything

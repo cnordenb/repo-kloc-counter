@@ -12,10 +12,92 @@ an earlier one, the earlier one is named after it, with its own link.
 
 ## Rules, and how they are read
 
+- **Rules 10 and 11 are tested.** Tests 37 and 38 check every code file, as Rule 25 allows a test to cover a rule.
+  Replaced: no tests of rules.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+  [2026-11-19 12:21:50](DEVLOG/DEVLOG1.md#122150-rules-10-and-11-tested-and-standard-files-outside-rule-14)
+- **Standard files.** Left out of Rule 14's count in every folder: the files that tools and GitHub look for by name,
+  listed in `standard_files` in `check-rules.sh`.
+  [2026-11-19 12:21:50](DEVLOG/DEVLOG1.md#122150-rules-10-and-11-tested-and-standard-files-outside-rule-14)
+
 ## Requirements, and how they are read
+
+- **The default branch is `HEAD`.** The file list is asked for at `git/trees/HEAD?recursive=1`: one API call a count.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **The excluded extensions.** Those Linguist gives both to a programming language and to prose: `.asc`, `.fr`, `.md`,
+  `.nb`, `.ncl`, `.scd` (Requirement 21).
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **The result line.** `12.3 KLOC · 214 files · 12347 lines`, no thousands separator, always "files" and "lines".
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **The rate-limit error.** The text of Requirement 38 alone, with no time of reset.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **An empty repository.** It gives `0.0 KLOC · 0 files · 0 lines`.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **Other input.** Input that is neither a link nor a command gives `error: not a valid link`.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **300 ms.** Requirement 28 is met by a 300 ms interval, tested with mocked timers.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **Accessibility later.** Accessibility is left for later; `.github/ACCESSIBILITY.md` stays as the template left it.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **Links without a scheme.** `github.com/...`, `http://` and `www.github.com` are accepted; other hosts are not.
+  [2026-11-19 11:50:52](DEVLOG/DEVLOG1.md#115052-packagejson-added-and-the-progress-line-decided)
+- **A file that fails to fetch.** Retried once, then left out, with the warning of a partial count.
+  [2026-11-19 11:50:52](DEVLOG/DEVLOG1.md#115052-packagejson-added-and-the-progress-line-decided)
+- **The progress line.** `/ counting lines... (done/total files)`, its first character turning through `/`, `-`, `\`,
+  `|` every 300 ms; done is the files read, total the files to read.
+  [2026-11-19 11:50:52](DEVLOG/DEVLOG1.md#115052-packagejson-added-and-the-progress-line-decided)
+- **No code files is no error.** Such a repository gives `0.0 KLOC · 0 files · 0 lines`.
+  [2026-11-19 11:50:52](DEVLOG/DEVLOG1.md#115052-packagejson-added-and-the-progress-line-decided)
+- **No token.** GitHub's API is called without a token, within its 60 calls an hour.
+  [2026-11-19 11:45:08](DEVLOG/DEVLOG1.md#114508-how-the-repository-is-read-and-shown-decided)
+- **Any link into a repository is accepted.** Everything after `{owner}/{repo}` is stripped; the default branch is
+  counted.
+  [2026-11-19 11:45:08](DEVLOG/DEVLOG1.md#114508-how-the-repository-is-read-and-shown-decided)
+- **The command line.** A page that looks like a terminal, with `help`, `clear` and input history on the arrow keys.
+  [2026-11-19 11:45:08](DEVLOG/DEVLOG1.md#114508-how-the-repository-is-read-and-shown-decided)
+- **A cut-short file list is counted.** What is listed is counted, with a warning that the count is partial.
+  [2026-11-19 11:45:08](DEVLOG/DEVLOG1.md#114508-how-the-repository-is-read-and-shown-decided)
+- **A 404 is one error.** "Not a public repository, or no such repository".
+  [2026-11-19 11:45:08](DEVLOG/DEVLOG1.md#114508-how-the-repository-is-read-and-shown-decided)
+- **One decimal.** The KLOC is shown with one decimal.
+  [2026-11-19 11:45:08](DEVLOG/DEVLOG1.md#114508-how-the-repository-is-read-and-shown-decided)
+- **The code extensions.** Those of the programming languages in GitHub Linguist's `languages.yml`, in a file of
+  their own.
+  [2026-11-19 11:45:08](DEVLOG/DEVLOG1.md#114508-how-the-repository-is-read-and-shown-decided)
+- **A line of code is a line that is not blank.** Comments count; lines of only whitespace do not.
+  [2026-11-19 11:40:28](DEVLOG/DEVLOG1.md#114028-the-project-set-up-from-the-template)
+- **Only code files are counted.** A file counts when its extension is that of a programming language.
+  [2026-11-19 11:40:28](DEVLOG/DEVLOG1.md#114028-the-project-set-up-from-the-template)
+- **The output.** The KLOC, the number of files counted and the exact number of lines.
+  [2026-11-19 11:40:28](DEVLOG/DEVLOG1.md#114028-the-project-set-up-from-the-template)
 
 ## Code and files
 
+- **A snapshot of the code extensions.** `src/extensions.json`, remade by `npm run update-extensions` from Linguist,
+  less `.github/scripts/excluded-extensions.json`; not read from Linguist at each count.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **No dependencies.** The code and the tests use only what browsers and Node.js 22 have (Rule 27).
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **`index.html` in the main folder.** GitHub Pages serves the main folder of the default branch, with no workflow.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **Plain functions, a thin page.** All behaviour is in `src/session.js` and the modules it uses; `src/main.js` only
+  draws and passes keys, and is checked by hand.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
+- **package.json and package-lock.json are committed.** With no dependencies, so that `npm ci` works.
+  [2026-11-19 11:50:52](DEVLOG/DEVLOG1.md#115052-packagejson-added-and-the-progress-line-decided)
+- **The stack.** Plain JavaScript modules, no build step, `node --test` on Node 22, published with GitHub Pages.
+  [2026-11-19 11:45:08](DEVLOG/DEVLOG1.md#114508-how-the-repository-is-read-and-shown-decided)
+- **`npm ci` only.** Packages are installed with `npm ci`, never `npm install`.
+  [2026-11-19 11:45:08](DEVLOG/DEVLOG1.md#114508-how-the-repository-is-read-and-shown-decided)
+
 ## Tests
 
+- **Code files are named once.** The rule tests take the code files from `code_pattern` in `check-rules.sh`.
+  [2026-11-19 12:21:50](DEVLOG/DEVLOG1.md#122150-rules-10-and-11-tested-and-standard-files-outside-rule-14)
+- **A fake GitHub.** The tests call `src/` with `fakeGitHub` from `tests/fake-github.js`, never the real GitHub.
+  [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
 ## Documents
+
+- **The name is Repo KLOC Counter.** The repository is cnordenb/repo-kloc-counter.
+  [2026-11-19 11:40:28](DEVLOG/DEVLOG1.md#114028-the-project-set-up-from-the-template)
+

@@ -2,9 +2,9 @@
 
 Rule 0: All commits must be made by humans. AI agents may not commit, per policy stated in CONTRIBUTING.md.
 
-Rule 1: The intended UI and behaviour of {{PROJECT_NAME}} is defined by REQUIREMENTS.md.
+Rule 1: The intended UI and behaviour of Repo KLOC Counter is defined by REQUIREMENTS.md.
 
-Rule 2: Only the chief developer ({{CHIEF_DEVELOPER}} @{{GITHUB_OWNER}}) may modify REQUIREMENTS.md. To others and to AI
+Rule 2: Only the chief developer (Carl Nordenbrink @cnordenb) may modify REQUIREMENTS.md. To others and to AI
 agents, REQUIREMENTS.md is read-only.
 
 Rule 3: Must be as easy as possible for humans to maintain with as few steps as possible.
@@ -28,12 +28,12 @@ Rule 10: No comments allowed in the code.
 
 Rule 11: No function may exceed 60 LOC. This applies to code.
 
-Rule 12: No LOC may exceed 120 characters. This applies to code.
+Rule 12: No LOC may exceed 120 characters. This applies to code.  
 
 Rule 13: No file may exceed 400 LOC. This applies to code.
 
 Rule 14: No folder may exceed 7 files. Root may exceptionally contain up to 8 files. This rule does not apply to
-documentation/DEVLOG/.
+documentation/DEVLOG/. Standard files like CLAUDE.md, README.md, package.json, etc. do not count.  
 
 Rule 15: No two files in this project may have identical file name. This rule does not apply to "SKILL.md".
 
@@ -61,7 +61,9 @@ is reached, current day entry is moved in its entirety to a new file.
 Rule 23: DECISIONS.md must list the decisions made in DEVLOG and refer to the date and time (if available) in the
 relevant DEVLOG where each was made.
 
-Rule 25: A test makes one check and tests one thing only. A test is written only to cover a requirement or to catch
+Rule 25: A test makes one check and tests one thing only. A test is written only to cover a requirement/rule or to catch
 again a bug that was found before (a regression test); no test is written for its own sake.
 
-Rule 26: The following is not considered code (contingent on rules 10-13): *.md, *.json, *.txt
+Rule 26: The following is not considered code (contingent on rules 10-13): *.md, *.json, *.txt  
+
+Rule 27: npm install is strictly forbidden. use npm ci instead.

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repo KLOC Counter</title>
+  <style>
+    html, body { margin: 0; min-height: 100%; background: #0c0c0c; color: #d0d0d0; }
+    body { padding: 12px 16px; font: 15px/1.45 ui-monospace, Consolas, "Cascadia Mono", Menlo, monospace; }
+    #output, #output div { white-space: pre-wrap; overflow-wrap: anywhere; }
+    #output .input { color: #ffffff; }
+    #output .error { color: #ff6b6b; }
+    #output .progress { color: #7fd1ff; }
+    .prompt { display: flex; gap: 1ch; }
+    .prompt label { color: #8ae234; }
+    #input { flex: 1; min-width: 0; padding: 0; border: 0; outline: 0; background: transparent; color: inherit;
+      font: inherit; caret-color: #8ae234; }
+    #input:disabled { visibility: hidden; }
+  </style>
+</head>
+<body>
+  <div id="output" role="log" aria-live="polite"></div>
+  <div class="prompt">
+    <label for="input">&gt;</label>
+    <input id="input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" autofocus>
+  </div>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
