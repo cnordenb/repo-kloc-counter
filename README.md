@@ -6,6 +6,11 @@
 
 # Repo KLOC Counter
 
+<img width="1171" height="285" alt="image" src="https://github.com/user-attachments/assets/6856d9e0-e447-4822-880c-1906d042c8ce" />
+
+## But why?
+Because the counting LOC in my head or with pen and paper is not as fun.
+
 ## Description
 
 A static, client-side web app with a command-line interface that counts the KLOC (thousands of lines of code) of a public GitHub repository from its link.
