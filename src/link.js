@@ -3,6 +3,8 @@ const NAME = /^[\w.-]+$/;
 const SCHEME = /^https?:\/\//i;
 const USER = /^[a-z\d-]+$/i;
 
+export const EVERY = '*';
+
 export function parseUser(name) {
   return USER.test(name) ? name : null;
 }
@@ -12,6 +14,7 @@ export function parseLink(input) {
   const link = SCHEME.test(text) ? text.replace(SCHEME, '') : text.replace(/^(?=[^/.]+\/)/, 'github.com/');
   const [host, owner = '', named = ''] = link.split(/[/?#]/);
   const repo = named.replace(/\.git$/i, '');
-  if (!HOSTS.has(host.toLowerCase()) || !NAME.test(owner) || !NAME.test(repo)) return null;
+  if (!HOSTS.has(host.toLowerCase()) || !NAME.test(owner)) return null;
+  if (repo !== EVERY && !NAME.test(repo)) return null;
   return { owner, repo };
 }

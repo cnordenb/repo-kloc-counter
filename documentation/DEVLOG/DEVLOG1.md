@@ -3,6 +3,7 @@
 Part 1 of the development log. The decisions made in the log are listed in [DECISIONS.md](../DECISIONS.md).
 
 - [2026-11-19](#2026-11-19)
+- [2026-11-20](#2026-11-20)
 
 ## 2026-11-19
 
@@ -431,3 +432,61 @@ Part 1 of the development log. The decisions made in the log are listed in [DECI
 #### Not done
 
 - Requirement 43, the order of the names, still has no test; see 13:41:59.
+
+## 2026-11-20
+
+### 02:54:33: every repository of an owner counted, one at a time
+
+#### What changed
+
+- **Why.** Counting each repository of an owner took one `ls` and then one input a repository.
+- **`{owner}/*`.** A valid link whose repository is `*`, such as `cnordenb/*`, counts every public repository of that
+  owner that is no fork, in the order of `ls`. Each repository gives its name on a line, its progress line while it is
+  counted, and then its result, with its warnings, as when its link is typed alone. There is no line of `ls` above
+  them and no total below. It ends when every repository is counted, or at the first error, such as
+  `error: GitHub's hourly rate limit exceeded`; the results above the error stay. An owner with no such repository
+  gives `no public repositories`, and one GitHub does not show `error: no such GitHub user`.
+- **link.js.** `parseLink` accepts `*`, exported as `EVERY`, in the place of the repository's name, in every form of
+  link.
+- **session.js.** `submit` marks the terminal busy, runs the input in `run`, shows the one error that rises from it,
+  and tells the page that the terminal is free. `withProgress`, before `whileBusy`, only shows a progress line while
+  its work runs. `countEvery` lists the names with `reposOf`, which `list` uses too, and calls `count` for each.
+  `fail` shows an error; `failed` and the reading of a line's first word to tell an error were taken out.
+- **output.js.** `HELP` has a line for `{owner}/*`. `NO_REPOS` holds `no public repositories`, for it and `ls`.
+- **Replaced.** That `whileBusy` marks the terminal busy, of
+  [the `ls` command lists a user's repositories](#131359-the-ls-command-lists-a-users-repositories) and
+  [a progress line while `ls` waits](#132429-a-progress-line-while-ls-waits): the terminal must stay busy from the
+  first repository to the last, so `submit` marks it.
+- **Tests.** 66, up from 60: Tests 59 to 64, in `tests/terminal.test.js`, for the names and results in turn, forks
+  left out, the stop at the rate limit, an owner with none, no such owner, and the page told that the terminal is
+  free. Tests 59 and 60 became 65 and 66.
+- **Checked.** All 66 tests passed; Tests 59 to 63 failed before the change, and Test 64 passed before it, as the
+  input was then no valid link. With the last `onChange` of `submit` taken out, Test 64 failed; with `countEvery`
+  going on after an error, Test 61 failed; both were undone. Mutation testing of `src/session.js`, `src/link.js` and
+  `src/output.js` left 5 mutants, 4 in `session.js` and 1 in `output.js`, as many as before and in functions of
+  before. The CRAP score of every function is 6 or under. dryer found a class of errors written twice, in
+  `session.js` and `github.js`; the one in `session.js` gave way to `fail`, and no code is written twice. Run in Node
+  against GitHub, `cnordenb/*` gave the names and results of 10 repositories. `check-rules.sh` passed.
+- **Documents.** `MAINTAINER.md`: a section on every repository of an owner, the ls command, the table of files, and
+  the numbers of the rule tests, which still said 37 and 38. `TESTS.md`: Tests 59 to 66. `TERMINOLOGY.md`: owner/*.
+  `DECISIONS.md`, where the rule tests are now named 65 and 66.
+
+#### Not done
+
+- `{owner}/*` has no requirement yet, so Tests 59, 60, 62 and 63 name none; see the questions.
+- The page was not looked at in a browser; `src/main.js` was not changed.
+- The stop at the rate limit was seen only with `fakeGitHub`, not against GitHub.
+- A count of every repository cannot be stopped but by reloading the page.
+- No line says that every repository was counted, nor how many, nor their sum.
+
+#### Questions
+
+1. **The requirements.** Proposal, to add: "Repo KLOC Counter will accept `{owner}/*` in the place of
+   `{owner}/{repo}`, and count every public repository of that owner, one at a time." "`{owner}/*` will leave forks
+   out." "`{owner}/*` will show, for each repository, a line `{owner}/{repo}` and then its result." "`{owner}/*`
+   will stop at the first error." "An owner with no public repositories will give "no public repositories"." "An
+   owner GitHub does not show will give the error "no such GitHub user"."
+2. **The name above each result.** A result does not name its repository, so each is given a line `owner/name` above
+   it. It could instead read `> owner/name`, as if typed at the prompt. Proposal: keep the plain name.
+3. **Other errors.** Not only the rate limit ends it: so does `error: GitHub could not be reached`, since the
+   repositories after it would most likely fail the same way. Proposal: keep it so.

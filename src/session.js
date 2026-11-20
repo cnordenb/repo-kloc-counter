@@ -1,7 +1,7 @@
-import { parseLink, parseUser } from './link.js';
+import { EVERY, parseLink, parseUser } from './link.js';
 import { countRepository } from './count.js';
 import { listRepos } from './github.js';
-import { FRAME_MS, HELP, errorLine, listingLine, progressLine, repoLines, resultLines } from './output.js';
+import { FRAME_MS, HELP, NO_REPOS, errorLine, listingLine, progressLine, repoLines, resultLines } from './output.js';
 
 export function createSession({ fetch, onChange = () => {} }) {
   const session = { state: { lines: [], busy: false, history: [], cursor: 0 }, onChange };
@@ -21,11 +21,10 @@ export function createSession({ fetch, onChange = () => {} }) {
     if (text === '') return;
     remember(state, text);
     if (Object.hasOwn(commands, text)) return commands[text]();
-    const [word, ...words] = text.split(/\s+/);
-    if (word === 'ls') return list(session, fetch, words.join(' '));
-    const repo = parseLink(text);
-    if (repo === null) return show(session, errorLine('invalid'), 'error');
-    await count(session, fetch, repo);
+    state.busy = true;
+    await run(session, fetch, text).catch((error) => fail(session, error.kind));
+    state.busy = false;
+    onChange();
   }
 
   return {
@@ -44,29 +43,55 @@ export function createSession({ fetch, onChange = () => {} }) {
   };
 }
 
-function count(session, fetch, repo) {
+async function run(session, fetch, text) {
+  const [word, ...words] = text.split(/\s+/);
+  if (word === 'ls') return list(session, fetch, words.join(' '));
+  const repo = parseLink(text);
+  if (repo === null) return fail(session, 'invalid');
+  if (repo.repo === EVERY) return countEvery(session, fetch, repo.owner);
+  await count(session, fetch, repo);
+}
+
+async function count(session, fetch, repo) {
   const describe = ({ frame, done, total }) => progressLine(frame, done, total);
-  return whileBusy(session, describe, (update) => countRepository(fetch, repo, update).then(resultLines, failed));
+  const totals = await withProgress(session, describe, (update) => countRepository(fetch, repo, update));
+  showAll(session, resultLines(totals));
 }
 
-function list(session, fetch, name) {
+async function countEvery(session, fetch, owner) {
+  const names = await reposOf(session, fetch, owner);
+  if (names.length === 0) show(session, NO_REPOS);
+  for (const name of names) {
+    show(session, name);
+    await count(session, fetch, parseLink(name));
+  }
+}
+
+async function list(session, fetch, name) {
   const user = parseUser(name);
-  if (user === null) return show(session, errorLine('lsUsage'), 'error');
-  const work = () => listRepos(fetch, user).then((names) => repoLines(user, names), failed);
-  return whileBusy(session, ({ frame }) => listingLine(frame), work);
+  if (user === null) return fail(session, 'lsUsage');
+  showAll(session, repoLines(user, await reposOf(session, fetch, user)));
 }
 
-async function whileBusy(session, describe, work) {
-  session.state.busy = true;
+function reposOf(session, fetch, user) {
+  return withProgress(session, ({ frame }) => listingLine(frame), () => listRepos(fetch, user));
+}
+
+async function withProgress(session, describe, work) {
   const progress = startProgress(session, describe);
-  const outcome = await work(progress.update);
-  progress.stop();
-  session.state.busy = false;
-  outcome.forEach((line) => show(session, line, line.startsWith('error') ? 'error' : 'output'));
+  try {
+    return await work(progress.update);
+  } finally {
+    progress.stop();
+  }
 }
 
-function failed(error) {
-  return [errorLine(error.kind)];
+function fail(session, kind) {
+  show(session, errorLine(kind), 'error');
+}
+
+function showAll(session, lines) {
+  lines.forEach((line) => show(session, line));
 }
 
 function startProgress(session, describe) {

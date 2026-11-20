@@ -189,3 +189,40 @@ test('Test 58: while ls waits, the turning character changes every 150 ms', () =
   mock.timers.reset();
   assert.deepEqual([before, after], ['/', '─']);
 });
+
+test('Test 59: owner/* shows the name and the result of every repository of the owner, in turn', async () => {
+  const github = fakeGitHub({ repos: ownRepos('cnordenb', 2), files: { 'a.js': 'x\n' } });
+  const result = '0.0 KLOC · 1 files · 1 lines';
+  assert.deepEqual(await outputAfter(['cnordenb/*'], github), ['cnordenb/repo-0', result, 'cnordenb/repo-1', result]);
+});
+
+test('Test 60: owner/* leaves forks out', async () => {
+  const repos = [{ full_name: 'cnordenb/linguist', fork: true }, { full_name: 'cnordenb/onkos', fork: false }];
+  assert.equal((await outputAfter(['cnordenb/*'], fakeGitHub({ repos })))[0], 'cnordenb/onkos');
+});
+
+test('Test 61: owner/* stops at the repository where the hourly rate limit is exceeded', async () => {
+  const github = fakeGitHub({ repos: ownRepos('cnordenb', 3) });
+  const limited = () => new Response('{}', { status: 403, headers: { 'x-ratelimit-remaining': '0' } });
+  let counts = 0;
+  const fetch = async (url) => (url.includes('/git/trees/') && (counts += 1) > 1 ? limited() : github.fetch(url));
+  const empty = '0.0 KLOC · 0 files · 0 lines';
+  const expected = ['cnordenb/repo-0', empty, 'cnordenb/repo-1', "error: GitHub's hourly rate limit exceeded"];
+  assert.deepEqual(await outputAfter(['cnordenb/*'], { fetch }), expected);
+});
+
+test('Test 62: owner/* of an owner without public repositories says so', async () => {
+  assert.deepEqual(await outputAfter(['cnordenb/*']), ['no public repositories']);
+});
+
+test('Test 63: owner/* of an owner GitHub does not know gives "no such GitHub user"', async () => {
+  assert.deepEqual(await outputAfter(['nobody/*'], fakeGitHub({ status: 404 })), ['error: no such GitHub user']);
+});
+
+test('Test 64: the page is told the terminal is free when owner/* has ended', async () => {
+  const seen = [];
+  const github = fakeGitHub({ repos: ownRepos('cnordenb', 2) });
+  const session = createSession({ fetch: github.fetch, onChange: () => seen.push(session.busy) });
+  await session.submit('cnordenb/*');
+  assert.equal(seen.at(-1), false);
+});

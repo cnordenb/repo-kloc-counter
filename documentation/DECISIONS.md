@@ -12,7 +12,7 @@ an earlier one, the earlier one is named after it, with its own link.
 
 ## Rules, and how they are read
 
-- **Rules 10 and 11 are tested.** Tests 37 and 38 check every code file, as Rule 25 allows a test to cover a rule.
+- **Rules 10 and 11 are tested.** Tests 65 and 66 check every code file, as Rule 25 allows a test to cover a rule.
   Replaced: no tests of rules.
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
   [2026-11-19 12:21:50](DEVLOG/DEVLOG1.md#122150-rules-10-and-11-tested-and-standard-files-outside-rule-14)
@@ -36,6 +36,11 @@ an earlier one, the earlier one is named after it, with its own link.
   Requirements 50 to 52. [2026-11-19 13:45:46](DEVLOG/DEVLOG1.md#134546-the-first-two-lines-of-ls-have-their-requirements)
 - **ls of a user with none.** The two lines, with 0, then `no public repositories`, as Requirement 47 still asks.
   [2026-11-19 13:41:59](DEVLOG/DEVLOG1.md#134159-ls-says-how-many-public-source-repositories-a-user-has)
+- **Every repository of an owner.** `{owner}/*` counts each public repository of the owner that is no fork, in the
+  order of `ls`: its name on a line, then its result. No line of `ls` above, no total below.
+  [2026-11-20 02:54:33](DEVLOG/DEVLOG1.md#025433-every-repository-of-an-owner-counted-one-at-a-time)
+- **The first error ends `{owner}/*`.** The rate limit or any other error of GitHub; the results above it stay.
+  [2026-11-20 02:54:33](DEVLOG/DEVLOG1.md#025433-every-repository-of-an-owner-counted-one-at-a-time)
 - **The default branch is `HEAD`.** The file list is asked for at `git/trees/HEAD?recursive=1`: one API call a count.
   [2026-11-19 12:14:26](DEVLOG/DEVLOG1.md#121426-the-terminal-counts-a-repositorys-lines-of-code)
 - **The excluded extensions.** Those Linguist gives both to a programming language and to prose: `.asc`, `.fr`, `.md`,
@@ -101,10 +106,14 @@ an earlier one, the earlier one is named after it, with its own link.
 
 - **One place for GitHub's errors.** `parsed` in `github.js` turns every answer that is not ok into a `GitHubError`.
   [2026-11-19 13:13:59](DEVLOG/DEVLOG1.md#131359-the-ls-command-lists-a-users-repositories)
-- **One place for being busy.** `whileBusy` in `session.js` marks the terminal busy, shows a progress line until
-  the work is done, and shows the lines after; a count and `ls` pass only how their line reads.
+- **One place for being busy.** `submit` in `session.js` marks the terminal busy while any input runs and shows the
+  one error that rises from it; `withProgress` shows a progress line while its work runs. Replaced: `whileBusy` did
+  both, for one count or one `ls`.
   [2026-11-19 13:13:59](DEVLOG/DEVLOG1.md#131359-the-ls-command-lists-a-users-repositories)
   [2026-11-19 13:24:29](DEVLOG/DEVLOG1.md#132429-a-progress-line-while-ls-waits)
+  [2026-11-20 02:54:33](DEVLOG/DEVLOG1.md#025433-every-repository-of-an-owner-counted-one-at-a-time)
+- **`*` is a repository's name to `parseLink`.** `{ owner, repo: '*' }`, so every form of link takes it.
+  [2026-11-20 02:54:33](DEVLOG/DEVLOG1.md#025433-every-repository-of-an-owner-counted-one-at-a-time)
 - **A snapshot of the code extensions.** `src/data/extensions.json`, remade by `npm run update-extensions` from
   Linguist, plus `included-extensions.json` and less `excluded-extensions.json`, both in `.github/scripts/`; not read
   from Linguist at each count.

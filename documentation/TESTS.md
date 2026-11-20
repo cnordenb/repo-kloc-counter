@@ -86,13 +86,19 @@ Functional completeness & correctness tests:
 - [Test 56](#test-56): busy during ls
 - [Test 57](#test-57): ls progress line
 - [Test 58](#test-58): ls turning character
+- [Test 59](#test-59): owner/* counts each repository
+- [Test 60](#test-60): owner/* leaves forks out
+- [Test 61](#test-61): owner/* stops at the rate limit
+- [Test 62](#test-62): owner/* with none
+- [Test 63](#test-63): owner/* of no such user
+- [Test 64](#test-64): free after owner/*
 
 Accessibility tests:
 
 Maintainability tests:
 
-- [Test 59](#test-59): no comments
-- [Test 60](#test-60): functions of 60 lines at most
+- [Test 65](#test-65): no comments
+- [Test 66](#test-66): functions of 60 lines at most
 
 ## Test 1
 
@@ -735,6 +741,72 @@ With mocked timers, the character is `/` at 149 ms and `─` at 150 ms.
 ## Test 59
 
 ### File residence:
+`tests/terminal.test.js`, lines 193-197
+
+### Purpose:
+Verify that `{owner}/*` counts every repository of the owner, one at a time, each under its name.
+
+### Assertion expectation:
+Two repositories of one line of code give each its name, then `0.0 KLOC · 1 files · 1 lines`.
+
+## Test 60
+
+### File residence:
+`tests/terminal.test.js`, lines 199-202
+
+### Purpose:
+Verify that `{owner}/*` leaves forks out.
+
+### Assertion expectation:
+With a fork and `cnordenb/onkos`, the first line is `cnordenb/onkos`.
+
+## Test 61
+
+### File residence:
+`tests/terminal.test.js`, lines 204-212
+
+### Purpose:
+Verify that `{owner}/*` stops when GitHub's hourly rate limit is exceeded (Req. 38).
+
+### Assertion expectation:
+Limited at the second of three counts, the output ends with the second name and the rate limit error.
+
+## Test 62
+
+### File residence:
+`tests/terminal.test.js`, lines 214-216
+
+### Purpose:
+Verify that `{owner}/*` of an owner without public repositories says so.
+
+### Assertion expectation:
+The only output is `no public repositories`.
+
+## Test 63
+
+### File residence:
+`tests/terminal.test.js`, lines 218-220
+
+### Purpose:
+Verify that `{owner}/*` of an owner GitHub does not show gives "no such GitHub user".
+
+### Assertion expectation:
+A 404 for the owner gives only `error: no such GitHub user`.
+
+## Test 64
+
+### File residence:
+`tests/terminal.test.js`, lines 222-228
+
+### Purpose:
+Verify that the prompt accepts new input after `{owner}/*`: the page must hear the terminal is free (Req. 11).
+
+### Assertion expectation:
+After `cnordenb/*` has ended, the last change the page was told of has `busy` false.
+
+## Test 65
+
+### File residence:
 `tests/verify-rules.test.js`, lines 39-43
 
 ### Purpose:
@@ -743,7 +815,7 @@ Enforce that no code holds a comment (Rule 10).
 ### Assertion expectation:
 No line of a code file, strings aside, holds `//`, `/*`, `<!--` or, outside JavaScript, `#`.
 
-## Test 60
+## Test 66
 
 ### File residence:
 `tests/verify-rules.test.js`, lines 45-47

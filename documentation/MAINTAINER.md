@@ -7,6 +7,7 @@
    - [How a count works](#how-a-count-works)
    - [Comment styles](#comment-styles)
    - [The ls command](#the-ls-command)
+   - [Every repository of an owner](#every-repository-of-an-owner)
    - [Trying the page on your computer](#trying-the-page-on-your-computer)
    - [Tests](#tests)
    - [Rules for changing the code](#rules-for-changing-the-code)
@@ -63,7 +64,7 @@ functions in `src/`, which the tests call directly with a fake GitHub, so they n
 | `index.html` | The page: the terminal's layout and colours. GitHub Pages serves it. |
 | `package.json`, `package-lock.json` | Tell npm how to run the tests. There are no dependencies; install with `npm ci`, never `npm install` (Rule 27). |
 | `src/main.js` | Draws the terminal in the page and passes the keys Enter, up and down to the session. |
-| `src/session.js` | The terminal itself: what was shown, the history of input, the commands, `ls`, and a count with its progress line. |
+| `src/session.js` | The terminal itself: what was shown, the history of input, the commands, `ls`, and a count, of one repository or of every repository of an owner, with its progress line. |
 | `src/link.js` | Turns what the user typed into an owner and a repository, or into "not a valid link". |
 | `src/github.js` | Asks GitHub for the list of files of a repository, or the repositories of a user, and reads a file, trying twice. |
 | `src/count.js` | Picks the code files and counts their lines of code: not blank, and not only comment. |
@@ -127,8 +128,30 @@ any line can be typed back to count it. Above the list, `repoLines` in `output.j
 `cnordenb has 7 public source repositories.` and a line of 40 dashes. `listRepos` in `github.js` asks
 `https://api.github.com/users/cnordenb/repos?type=owner&sort=full_name&per_page=100&page=1`, then page 2 and on while
 a page holds 100, and leaves out every repository whose `fork` is true. Each page is one call against the limit of 60
-an hour. A 404 gives `error: no such GitHub user`. While it waits, `whileBusy` in `session.js` marks the terminal
-busy and shows the progress line `/ counting repositories...`, as during a count, so that the prompt waits too.
+an hour. A 404 gives `error: no such GitHub user`. While it waits, `withProgress` in `session.js` shows the
+progress line `/ counting repositories...`, as during a count, and `submit` keeps the terminal busy, so that the
+prompt waits too.
+
+### Every repository of an owner
+
+`cnordenb/*` counts every public repository of that owner that is no fork, one at a time, in the order of `ls`.
+`parseLink` gives `{ owner: 'cnordenb', repo: '*' }`, in any form of link, and `countEvery` in `session.js` then asks
+`listRepos` for the names, as `ls` does. For each name it shows the name on a line of its own, counts the repository as
+in [How a count works](#how-a-count-works), and shows its result:
+
+```
+cnordenb/aoe2vils.net
+3.7 KLOC · 12 files · 3656 lines
+cnordenb/atlas-maker
+1.0 KLOC · 14 files · 987 lines
+```
+
+Each repository costs one call against the limit of 60 an hour, and the list one call a page, so about 59
+repositories fit in an hour. The first error ends it: `run` in `session.js` lets every error from GitHub rise to
+`submit`, which shows it once. So when the limit is reached, `error: GitHub's hourly rate limit exceeded` comes under
+the name of the repository that could not be counted, and the results above it stay. `submit` also marks the terminal
+busy from the first call to the last, so the prompt waits for the whole of it; it cannot be stopped but by reloading
+the page.
 
 ### Trying the page on your computer
 
@@ -148,7 +171,7 @@ hand: open the page, type `help`, a link, and use the arrows.
 
 `tests/verify-rules.test.js` checks two rules in every code file: no comments (Rule 10) and no function over 60 lines
 of code (Rule 11). A file is code when its name matches `code_pattern` in `check-rules.sh`, so a new kind of code file
-is added there once. If Test 37 or 38 fails, it names the file and the line; move the comment's text into this guide,
+is added there once. If Test 65 or 66 fails, it names the file and the line; move the comment's text into this guide,
 or split the function. Node runs the test files in the order of their names, which is why this one, run last, starts
 with `verify`.
 

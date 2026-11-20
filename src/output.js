@@ -8,6 +8,7 @@ export const HELP = [
   'https://github.com/{owner}/{repo}  count the lines of code of that public repository',
   '                                   (http://, no scheme and www. work too; the rest of the link is ignored)',
   '{owner}/{repo}                     the same, such as cnordenb/repo-kloc-counter',
+  '{owner}/*                          count every public repository of that owner, one at a time, forks left out',
   'ls {user}                          list the public repositories of a GitHub user, forks left out',
   'help                               show this help',
   'clear                              clear the terminal',
@@ -27,9 +28,11 @@ export function errorLine(kind) {
   return ERRORS[kind] ?? ERRORS.unreachable;
 }
 
+export const NO_REPOS = 'no public repositories';
+
 export function repoLines(user, names) {
   const noun = names.length === 1 ? 'repository' : 'repositories';
-  const listed = names.length > 0 ? names : ['no public repositories'];
+  const listed = names.length > 0 ? names : [NO_REPOS];
   return [`${user} has ${names.length} public source ${noun}.`, '-'.repeat(40), ...listed];
 }
 
